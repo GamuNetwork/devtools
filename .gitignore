@@ -1,0 +1,38 @@
+# editors files
+*.code-workspace
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# temporary files
+*.cache
+*.tmp
+
+# compiled files
+*py[cod]
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.dll
+*.pdb
+*.lib
+*.a
+*.out
+*.app
+
+# dependencies
+node_modules/
+jspm_packages/
+env/
+
+# logs and databases
+*.log
+*.db
+*/logs
+*/log
+
+# tests reports
+*/reports
