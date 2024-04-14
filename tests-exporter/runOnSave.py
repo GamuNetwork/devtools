@@ -48,7 +48,7 @@ def main():
         FILES = temp
         
         if modified:
-            sp.run(["python", "main.py", "report.json"])
+            sp.run([sys.executable, "main.py", "report.json"])
         sleep(1)
     
 if __name__ == "__main__":
