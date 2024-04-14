@@ -1,0 +1,29 @@
+<div id="summaryPie" class="h-1/2 bg-base-100 rounded-lg"></div>
+<script type="text/javascript">
+    const xArray = [
+        "passed",
+        "failed",
+        "pending",
+        "skipped",
+        "other"
+    ]
+
+    const yArray = [
+        {{passed}},
+        {{failed}},
+        {{pending}},
+        {{skipped}},
+        {{other}}
+    ] // the values will be set in the python script
+
+    const layout = {
+        title: 'Test Summary',
+        paper_bgcolor: 'transparent',
+        font: {color: 'white'}, 
+        colorway: ['#009900', '#990000', '#999900', '#000099', '#990099']
+    }
+    const data = [{labels: xArray, values: yArray, type: 'pie'}]
+    const config = {responsive: true}
+
+    Plotly.newPlot('summaryPie', data, layout, config)
+</script>
