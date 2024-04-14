@@ -1,5 +1,6 @@
 from enum import Enum
 from json5 import loads
+from datetime import datetime, timedelta
 import re
 
 class Suite:
@@ -98,7 +99,6 @@ class Stack:
             
             self.path, self.line, self.column = re.match(r"(.+):(\d+):(\d+)", position).groups()
             self.path = self.path.split('(')[-1]
-            print(self.path, self.line, self.column)
             
         def __str__(self):
             return f"{self.path}:{self.line}:{self.column}"
@@ -123,7 +123,25 @@ class Stack:
     def __getitem__(self, index):
         return self.stack[index]
     
-    
+class Summary:
+    def __init__(self, json : str|dict):
+        if isinstance(json, str):
+            json = loads(json)
+            
+        self.appName = json["appName"]
+        self.appVersion = json["appVersion"]
+        self.specs = json["specs"]
+        self.failures = json["failures"]
+        self.pending = json["pending"]
+        self.duration = json["duration"] # in milliseconds
+        self.skipped = json["skipped"]
+        self.passed = json["passed"]
+        assert self.passed == self.specs - self.failures - self.pending - self.skipped # sanity check
+        self.startDate = datetime.fromisoformat(json["startDate"])
+        self.endDate = self.startDate + timedelta(milliseconds=self.duration)
+        
+    def __str__(self):
+        return f"{self.appName} {self.appVersion} - {self.startDate}"
     
 if __name__ == "__main__":
     with open("report.json", "r") as f:
@@ -131,8 +149,7 @@ if __name__ == "__main__":
         
     data = loads(data) #type: dict[str, dict]
     
-    suites = [Suite(suite) for id, suite in data["suites"].items() if id != "orphansSpecs"]
-    
+    suites = [Suite(suite) for suite in data["suites"].values()]
     for suite in suites:
         print(suite)
         for spec in suite.specs:

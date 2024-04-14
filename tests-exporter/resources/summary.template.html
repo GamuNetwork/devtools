@@ -1,29 +1,50 @@
-<div id="summaryPie" class="h-1/2 bg-base-100 rounded-lg"></div>
-<script type="text/javascript">
-    const xArray = [
-        "passed",
-        "failed",
-        "pending",
-        "skipped",
-        "other"
-    ]
+<div id = "summary" class="h-1/2 min-h-80 bg-base-100 rounded-lg m-2">
+    <h1 class="text-left p-5 text-2xl absolute font-bold po">Summary</h1>
+    <div id="summaryPie" class="h-1/2 min-h-80"></div>
+    <script type="text/javascript">
+        const xArray = [
+            "passed",
+            "failed",
+            "pending",
+            "skipped"
+        ]
 
-    const yArray = [
-        {{passed}},
-        {{failed}},
-        {{pending}},
-        {{skipped}},
-        {{other}}
-    ] // the values will be set in the python script
+        const yArray = [
+            {{passed}},
+            {{failed}},
+            {{pending}},
+            {{skipped}}
+        ] // the values will be set in the python script
 
-    const layout = {
-        title: 'Test Summary',
-        paper_bgcolor: 'transparent',
-        font: {color: 'white'}, 
-        colorway: ['#009900', '#990000', '#999900', '#000099', '#990099']
-    }
-    const data = [{labels: xArray, values: yArray, type: 'pie'}]
-    const config = {responsive: true}
+        const layout = {
+            
+            paper_bgcolor: 'transparent',
+            font: {color: 'white'}, 
+            colorway: ['#009900', '#BB0000', '#CC9900', '#000099'],
+            margin: {"t": 20, "b": 20, "l": 0, "r": 0}
+        }
 
-    Plotly.newPlot('summaryPie', data, layout, config)
-</script>
+        const data = [
+            {
+                labels: xArray,
+                values: yArray,
+                type: 'pie',
+                textposition: 'outside',
+                automargin: true,
+                hole: 0.5,
+                textinfo: 'percent',
+                hoverinfo: 'label+percent',
+                marker: {
+                    line: {
+                        color: 'white',
+                        width: 0.5
+                    }
+                }
+            }
+        ]
+        
+        const config = {responsive: true}
+
+        Plotly.newPlot('summaryPie', data, layout, config)
+    </script>
+</div>
