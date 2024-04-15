@@ -48,7 +48,11 @@ def main():
         FILES = temp
         
         if modified:
-            sp.run([sys.executable, "main.py", "report.json"])
+            response = sp.run([sys.executable, "main.py", "report.json"])
+            if response.returncode == 0:
+                print("Report generated")
+            else:
+                print("Error generating report")
         sleep(1)
     
 if __name__ == "__main__":
