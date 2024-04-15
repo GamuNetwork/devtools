@@ -1,0 +1,55 @@
+<!DOCTYPE html lang="en">
+<html>
+<head>
+    <title>Tests results</title>
+    <!-- tailwind & daisyui -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.1/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <!-- syntax highlight -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        .hljs{
+            background-color: oklch(var(--n));
+            color: #d8dee9;
+            display: contents !important;
+        }
+
+        .hljs-comment, .hljs-quote {
+            color: #7f848e;
+        }
+
+        .hljs-keyword, .hljs-selector-tag, .hljs-subst {
+            color: #c792ea;
+        }
+
+        .hljs-number, .hljs-literal, .hljs-variable, .hljs-template-variable, .hljs-tag .hljs-attr, .hljs-name, .hljs-selector-id, .hljs-selector-class, .hljs-regexp, .hljs-link {
+            color: #f78c6c;
+        }
+
+        .hljs-string, .hljs-symbol, .hljs-bullet, .hljs-built_in, .hljs-builtin-name, .hljs-addition {
+            color: #c3e88d;
+        }
+
+        .hljs-title, .hljs-section {
+            color: #ffcb6b;
+        }
+
+        .hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-title, .hljs-section, .hljs-doctag, .hljs-type, .hljs-name, .hljs-strong {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="p-5 bg-base-200 h-fit justify-between">
+        {{header}}
+        <div class="p-5 h-fit">
+            {{content}}
+        </div>
+        {{footer}}
+    </div>
+</html>

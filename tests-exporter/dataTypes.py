@@ -13,14 +13,17 @@ class Suite:
         self.description = json["description"]
         self.fullName = json["fullName"]
         self.filename = json["filename"]
-        self.duration = json["duration"] # in milliseconds
+        self.duration = Duration(json["duration"])
         self.properties = json["properties"]
+        self.passed = json["passed"]
+        self.failed = json["failed"]
+        self.pending = json["pending"]
+        self.skipped = json["skipped"]
         self.specs = [Spec(spec_json) for spec_json in json["specs"]]
         
     def __str__(self):
         return self.fullName
     
-
 class Spec:
     def __init__(self, json : str|dict):
         if isinstance(json, str):
@@ -30,20 +33,19 @@ class Spec:
         self.description = json["description"]
         self.fullName = json["fullName"]
         self.filename = json["filename"]
-        self.Expectations = []
+        self.expectations = [] #type: list[Expectation]
         for expectation in json["failedExpectations"]:
-            self.Expectations.append(Expectation.from_json(expectation))
+            self.expectations.append(Expectation.from_json(expectation))
         for expectation in json["passedExpectations"]:
-            self.Expectations.append(Expectation.from_json(expectation))
+            self.expectations.append(Expectation.from_json(expectation))
         self.deprecationWarnings = json["deprecationWarnings"]
-        self.duration = json["duration"]
+        self.duration = Duration(json["duration"])
         self.properties = json["properties"]
-        self.pendingReason = json["pendingReason"]
-        self.status = Status(json["status"])
+        self.status = Status(json["status"]) if json["pendingReason"] != "Temporarily disabled with xit" else Status.SKIPPED
+        self.pendingReason = json["pendingReason"] if self.status == Status.PENDING else None
         
     def __str__(self):
         return self.fullName
-    
 
 class Expectation:
     def __init__(self, json : str|dict):
@@ -53,7 +55,7 @@ class Expectation:
         self.matcherName = json["matcherName"]
         self.message = json["message"]
         self.stack = Stack(json["stack"])
-        self.passed = json["passed"]
+        self.passed = json["passed"] #type: bool
         
     def __str__(self):
         return self.message
@@ -78,34 +80,34 @@ class PassedExpectation(Expectation):
     def __init__(self, json : str|dict):
         super().__init__(json)
         
-
 class Status(Enum):
     PASSED = "passed"
     FAILED = "failed"
     PENDING = "pending"
+    SKIPPED = "skipped"
     
     def __str__(self):
         return self.value
     
-
 class Stack:
     class Position:
         def __init__(self, position : str):
             if position == "(<unknown>)":
-                self.path = None
-                self.line = None
-                self.column = None
+                self.path = None #type: str
+                self.line = None #type: int
+                self.column = None #type: int
                 return
             
             self.path, self.line, self.column = re.match(r"(.+):(\d+):(\d+)", position).groups()
+            self.line = int(self.line)
+            self.column = int(self.column)
             self.path = self.path.split('(')[-1]
             
         def __str__(self):
             return f"{self.path}:{self.line}:{self.column}"
     
-    
     def __init__(self, string : str):
-        self.stack = []
+        self.stack = [] #type: list[Stack.Position]
         for line in string.split("\n"):
             line = line.strip()
             if line.count("(") == 1 and line.count(")") == 1:
@@ -113,6 +115,26 @@ class Stack:
             elif line != "":
                 self.stack.append(self.Position("(<unknown>)"))
                 
+    def get_context(self, contextSize : int = 5) -> list[tuple[int, str]]:
+        # read contextSize lines before and after the last position in the stack
+        # return the list of lines in the file
+        lastPosition = self.get_last_position()
+        
+        lines = [] #type: list[tuple[int, str]]
+        with open(lastPosition.path, "r") as f:
+            for i, line in enumerate(f):
+                if i >= lastPosition.line - contextSize and i <= lastPosition.line + contextSize:
+                    lines.append((i, line))
+        
+        return lines
+    
+    def get_last_position(self) -> Position:
+        contextPositionIndex = len(self.stack) - 1
+        while contextPositionIndex >= 0 and self.stack[contextPositionIndex].path is None:
+            contextPositionIndex -= 1
+        if contextPositionIndex < 0:
+            return None
+        return self.stack[contextPositionIndex]
 
     def __str__(self):
         return "\n".join(str(position) for position in self.stack)
@@ -133,15 +155,37 @@ class Summary:
         self.specs = json["specs"]
         self.failures = json["failures"]
         self.pending = json["pending"]
-        self.duration = json["duration"] # in milliseconds
+        self.duration = Duration(json["duration"])
         self.skipped = json["skipped"]
         self.passed = json["passed"]
         assert self.passed == self.specs - self.failures - self.pending - self.skipped # sanity check
         self.startDate = datetime.fromisoformat(json["startDate"])
-        self.endDate = self.startDate + timedelta(milliseconds=self.duration)
+        self.endDate = self.startDate + self.duration.getTimeDelta()
         
     def __str__(self):
         return f"{self.appName} {self.appVersion} - {self.startDate}"
+    
+class Duration:
+    def __init__(self, milliseconds : int):
+        self.milliseconds = milliseconds
+    
+    def __str__(self):
+        if self.milliseconds < 1000:
+            return f"{self.milliseconds} milliseconds"
+        seconds = self.milliseconds / 1000
+        if seconds < 60:
+            return f"{seconds:.2f} seconds"
+        minutes = seconds / 60
+        if minutes < 60:
+            return f"{minutes:.2f} minutes"
+        hours = minutes / 60
+        return f"{hours:.2f} hours"
+
+    def get(self):
+        return self.__str__()
+    
+    def getTimeDelta(self):
+        return timedelta(milliseconds=self.milliseconds)
     
 if __name__ == "__main__":
     with open("report.json", "r") as f:
