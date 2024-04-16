@@ -23,8 +23,24 @@ class Suite:
     def __str__(self):
         return self.fullName
     
+    @staticmethod
+    def suiteForOrphans(orphansData : dict):
+        return Suite({
+            "id": "orphans",
+            "description": "specs that are not in any suite",
+            "fullName": "Specs that are not in any suite",
+            "filename": "No specific file",
+            "duration": orphansData["duration"],
+            "properties": {},
+            "passed": orphansData["passed"],
+            "failed": orphansData["failed"],
+            "pending": orphansData["pending"],
+            "skipped": orphansData["skipped"],
+            "specs": orphansData["specs"]
+        })
+    
 class Spec:
-    def __init__(self, json : str|dict, parentSuite : Suite):
+    def __init__(self, json : str|dict, parentSuite : Suite|None):
         if isinstance(json, str):
             json = loads(json)
             

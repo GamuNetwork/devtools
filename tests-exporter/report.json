@@ -2,13 +2,13 @@
     "summary": {
         "appName": "gamu",
         "appVersion": "1.0.0",
-        "specs": 7,
+        "specs": 8,
         "failures": 3,
-        "passed": 2,
+        "passed": 3,
         "pending": 1,
         "skipped": 1,
         "duration": 4,
-        "startDate": "2024-04-15T17:03:59.516Z"
+        "startDate": "2024-04-16T21:36:25.316Z"
     },
     "suites": {
         "suite1": {
@@ -19,7 +19,7 @@
             "filename": "E:\\gamu\\server\\tests\\modules\\Logger.spec.js",
             "failedExpectations": [],
             "deprecationWarnings": [],
-            "duration": 3,
+            "duration": 4,
             "properties": null,
             "passed": 1,
             "failed": 1,
@@ -45,7 +45,7 @@
                     "passedExpectations": [],
                     "deprecationWarnings": [],
                     "pendingReason": "",
-                    "duration": 2,
+                    "duration": 3,
                     "properties": null,
                     "debugLogs": null,
                     "status": "failed"
@@ -91,60 +91,6 @@
             "skipped": 1,
             "specs": [
                 {
-                    "id": "spec3",
-                    "description": "should fail",
-                    "fullName": "Test should fail",
-                    "parentSuiteId": "suite2",
-                    "filename": "E:\\gamu\\server\\tests\\test.spec.js",
-                    "failedExpectations": [
-                        {
-                            "matcherName": "toBe",
-                            "message": "Expected false to be true.",
-                            "stack": "    at <Jasmine>\n    at UserContext.<anonymous> (E:\\gamu\\server\\tests\\test.spec.js:7:23)\n    at <Jasmine>",
-                            "passed": false,
-                            "expected": true,
-                            "actual": false
-                        }
-                    ],
-                    "passedExpectations": [],
-                    "deprecationWarnings": [],
-                    "pendingReason": "",
-                    "duration": 1,
-                    "properties": null,
-                    "debugLogs": null,
-                    "status": "failed"
-                },
-                {
-                    "id": "spec4",
-                    "description": "should be pending",
-                    "fullName": "Test should be pending",
-                    "parentSuiteId": "suite2",
-                    "filename": "E:\\gamu\\server\\tests\\test.spec.js",
-                    "failedExpectations": [],
-                    "passedExpectations": [],
-                    "deprecationWarnings": [],
-                    "pendingReason": "this is a pending test",
-                    "duration": 0,
-                    "properties": null,
-                    "debugLogs": null,
-                    "status": "pending"
-                },
-                {
-                    "id": "spec5",
-                    "description": "should be disabled",
-                    "fullName": "Test should be disabled",
-                    "parentSuiteId": "suite2",
-                    "filename": "E:\\gamu\\server\\tests\\test.spec.js",
-                    "failedExpectations": [],
-                    "passedExpectations": [],
-                    "deprecationWarnings": [],
-                    "pendingReason": "Temporarily disabled with xit",
-                    "duration": 0,
-                    "properties": null,
-                    "debugLogs": null,
-                    "status": "pending"
-                },
-                {
                     "id": "spec6",
                     "description": "should fail",
                     "fullName": "Test should fail",
@@ -176,7 +122,46 @@
                     ],
                     "deprecationWarnings": [],
                     "pendingReason": "",
-                    "duration": 1,
+                    "duration": 0,
+                    "properties": null,
+                    "debugLogs": null,
+                    "status": "failed"
+                },
+                {
+                    "id": "spec5",
+                    "description": "should be disabled",
+                    "fullName": "Test should be disabled",
+                    "parentSuiteId": "suite2",
+                    "filename": "E:\\gamu\\server\\tests\\test.spec.js",
+                    "failedExpectations": [],
+                    "passedExpectations": [],
+                    "deprecationWarnings": [],
+                    "pendingReason": "Temporarily disabled with xit",
+                    "duration": 0,
+                    "properties": null,
+                    "debugLogs": null,
+                    "status": "pending"
+                },
+                {
+                    "id": "spec3",
+                    "description": "should fail",
+                    "fullName": "Test should fail",
+                    "parentSuiteId": "suite2",
+                    "filename": "E:\\gamu\\server\\tests\\test.spec.js",
+                    "failedExpectations": [
+                        {
+                            "matcherName": "toBe",
+                            "message": "Expected false to be true.",
+                            "stack": "    at <Jasmine>\n    at UserContext.<anonymous> (E:\\gamu\\server\\tests\\test.spec.js:7:23)\n    at <Jasmine>",
+                            "passed": false,
+                            "expected": true,
+                            "actual": false
+                        }
+                    ],
+                    "passedExpectations": [],
+                    "deprecationWarnings": [],
+                    "pendingReason": "",
+                    "duration": 0,
                     "properties": null,
                     "debugLogs": null,
                     "status": "failed"
@@ -208,17 +193,55 @@
                     "properties": null,
                     "debugLogs": null,
                     "status": "passed"
+                },
+                {
+                    "id": "spec4",
+                    "description": "should be pending",
+                    "fullName": "Test should be pending",
+                    "parentSuiteId": "suite2",
+                    "filename": "E:\\gamu\\server\\tests\\test.spec.js",
+                    "failedExpectations": [],
+                    "passedExpectations": [],
+                    "deprecationWarnings": [],
+                    "pendingReason": "this is a pending test",
+                    "duration": 1,
+                    "properties": null,
+                    "debugLogs": null,
+                    "status": "pending"
                 }
             ],
             "status": "passed"
         }
     },
     "orphans": {
-        "passed": 0,
+        "passed": 1,
         "failed": 0,
         "pending": 0,
         "skipped": 0,
         "duration": 0,
-        "specs": []
+        "specs": [
+            {
+                "id": "spec7",
+                "description": "should be a top-level test",
+                "fullName": "should be a top-level test",
+                "parentSuiteId": null,
+                "filename": "E:\\gamu\\server\\tests\\test.spec.js",
+                "failedExpectations": [],
+                "passedExpectations": [
+                    {
+                        "matcherName": "toBe",
+                        "message": "Passed.",
+                        "stack": "",
+                        "passed": true
+                    }
+                ],
+                "deprecationWarnings": [],
+                "pendingReason": "",
+                "duration": 0,
+                "properties": null,
+                "debugLogs": null,
+                "status": "passed"
+            }
+        ]
     }
 }

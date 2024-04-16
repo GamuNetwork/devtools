@@ -18,7 +18,7 @@ def load_template(file, **kwargs):
         template = template.replace("{{" + key + "}}", str(value))
     return template
 
-def parse_report(file) -> tuple[Summary, list[Suite], list[Spec]]:
+def parse_report(file) -> tuple[Summary, list[Suite], Suite]:
     with open(file, "r") as f:
         data = f.read()
         
@@ -43,10 +43,10 @@ def parse_report(file) -> tuple[Summary, list[Suite], list[Spec]]:
     suites = [Suite(suite) for suite in data["suites"].values()]
     
     #TODO: handle orphansSpecs (as a suite with no name)
-        
+    orphans = Suite.suiteForOrphans(data["orphans"])
         
     #data is like the file report.json
-    return Summary(data["summary"]), suites
+    return Summary(data["summary"]), suites, orphans
 
 def getColorClass(status : Status) -> str:
     match status:
@@ -276,14 +276,14 @@ def main(argv):
         print(f"File {file} not found")
         sys.exit(1)
         
-    summary, suites = parse_report(file)
+    summary, suites, orphans = parse_report(file)
     build_index(summary)
     
-    for suite in suites:
+    for suite in suites+[orphans]:
         build_suite_index(suite)
         
-    build_suite_list(suites)
-    build_spec_list_from_suites(suites)
+    build_suite_list(suites+[orphans])
+    build_spec_list_from_suites([orphans]+suites)
     
 if __name__ == "__main__":
     main(sys.argv)
