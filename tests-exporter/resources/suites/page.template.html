@@ -1,0 +1,23 @@
+<div class="flex flex-row place-content-center">
+    <div id="left" class="w-1/2 mr-2">
+        {{mainInfo}}
+    </div>
+    <div id="right" class="w-1/2 ml-2 h-fit">
+        {{pie}}
+        {{details}}
+    </div>
+</div>
+<div id="details" class="w-full bg-base-100 rounded-lg m-2 py-2 px-4">
+    {{specList}}
+</div>
+<script>
+    // open the details of the required spec from the url query (using #specId)
+    const specId = window.location.hash.substring(1);
+    if (specId) {
+        const spec = document.getElementById(specId);
+        if (spec) {
+            spec.checked = true;
+            spec.scrollIntoView();
+        }
+    }
+</script>

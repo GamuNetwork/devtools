@@ -1,4 +1,4 @@
-<div id="mainInfo" class="w-1/2 w-full m-2">
+<div id="mainInfo" class="w-1/2 w-full m-2 shadow-lg bg-opacity-60 backdrop-blur-md">
     <div class="stats stats-vertical shadow w-full">
         <div class="stat">
             <div class="stat-title">Program</div>
@@ -10,9 +10,9 @@
         </div>
         <div class="stat">
             <div class="stat-title">Tests started on</div>
-            <div class="stat-value" id="startDate"></div>
+            <div class="stat-value" id="info_startDate"></div>
             <div class="stat-title">at</div>
-            <div class="stat-value" id="startTime"></div>
+            <div class="stat-value" id="info_startTime"></div>
         </div>
         <div class="stat">
             <div class="stat-title">Tests duration</div>
@@ -21,7 +21,7 @@
     </div>
     <script>
         let date = new Date("{{testDateTime}}");
-        document.getElementById("startDate").innerHTML = date.toLocaleDateString(undefined, {year: 'numeric', month: 'long', day: 'numeric'});
-        document.getElementById("startTime").innerHTML = date.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+        document.getElementById("info_startDate").innerHTML = date.toLocaleDateString(undefined, {year: 'numeric', month: 'long', day: 'numeric'});
+        document.getElementById("info_startTime").innerHTML = date.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit', second: '2-digit'});
     </script>
 </div>

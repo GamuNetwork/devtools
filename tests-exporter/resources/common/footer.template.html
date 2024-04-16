@@ -1,4 +1,4 @@
-<footer class="bg-white rounded-lg shadow m-4 dark:bg-gray-800 h-20">
+<footer class="bg-white rounded-lg m-4 dark:bg-gray-800 h-20 shadow-lg bg-opacity-60 backdrop-blur-md">
     <div class="flex flex-col items-center justify-center p-4">
         <div class="flex flex-col items-center justify-center">
             <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -8,6 +8,14 @@
             <p class="text-sm text-gray-600 dark:text-gray-400">
                 The source code is available on <a href="https://github.com/GamuNetwork/devtools/tree/main/tests-exporter" class="text-blue-500">GitHub</a>.
             </p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                Report generated on <span id="footer_startDate"></span> at <span id="footer_startTime"></span>.
+            </p>
+            <script>
+                date = new Date("{{datetime}}");
+                document.getElementById("footer_startDate").innerHTML = date.toLocaleDateString(undefined, {year: 'numeric', month: 'long', day: 'numeric'});
+                document.getElementById("footer_startTime").innerHTML = date.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+            </script>
         </div>
     </div>
 </footer>

@@ -1,22 +1,22 @@
-<div id = "summary" class="h-1/2 min-h-80 bg-base-100 rounded-lg m-2">
+<div id = "summary" class="h-1/2 min-h-80 bg-base-100 rounded-lg m-2 shadow-lg bg-opacity-60 backdrop-blur-md">
     <h1 class="text-left p-5 text-2xl absolute font-bold po">Summary</h1>
-    <div id="summaryPie" class="h-1/2 min-h-80"></div>
+    <div id="summaryPie_{{uid}}" class="h-1/2 min-h-80"></div>
     <script type="text/javascript">
-        const xArray = [
+        const xArray_{{uid}} = [
             "passed",
             "failed",
             "pending",
             "skipped"
         ]
 
-        const yArray = [
+        const yArray_{{uid}} = [
             {{passed}},
             {{failed}},
             {{pending}},
             {{skipped}}
         ] // the values will be set in the python script
 
-        const layout = {
+        const layout_{{uid}} = {
             
             paper_bgcolor: 'transparent',
             font: {color: 'white'}, 
@@ -24,10 +24,10 @@
             margin: {"t": 20, "b": 20, "l": 0, "r": 0}
         }
 
-        const data = [
+        const data_{{uid}} = [
             {
-                labels: xArray,
-                values: yArray,
+                labels: xArray_{{uid}},
+                values: yArray_{{uid}},
                 type: 'pie',
                 textposition: 'outside',
                 automargin: true,
@@ -43,8 +43,8 @@
             }
         ]
         
-        const config = {responsive: true}
+        const config_{{uid}} = {responsive: true}
 
-        Plotly.newPlot('summaryPie', data, layout, config)
+        Plotly.newPlot('summaryPie_{{uid}}', data_{{uid}}, layout_{{uid}}, config_{{uid}})
     </script>
 </div>

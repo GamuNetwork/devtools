@@ -1,0 +1,21 @@
+<details class="collapse collapse-arrow border bg-base-200 my-2">
+    <summary class="collapse-title text-xl font-medium">{{suiteName}}</summary>
+    <div class="collapse-content">
+        <!-- description, duration, total specs, passed, failed, pending, skipped, button-link to details -->
+        <div class="flex flex-row justify-between">
+            <div class="flex flex-col">
+                <p class="text-lg m-2 p-4">{{description}}</p>
+                <div class="stat bg-base-100 m-2 rounded-lg shadow-lg bg-opacity-60 backdrop-blur-md">
+                    <div class="stat-title">Duration</div>
+                    <div class="stat-value">{{duration}}</div>
+                </div>
+                <div class="stat bg-base-100 m-2 rounded-lg shadow-lg bg-opacity-60 backdrop-blur-md">
+                    <div class="stat-title">File</div>
+                    <div class="stat-value"><code>{{fileName}}</code></div>
+                </div>
+                {{pie}}
+            </div>
+            <a class="btn btn-outline btn-info" href="{{details}}">Details</a>
+        </div>
+    </div>
+</details>

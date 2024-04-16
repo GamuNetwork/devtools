@@ -8,7 +8,6 @@ class Suite:
         if isinstance(json, str):
             json = loads(json)
             
-            
         self.id = json["id"]
         self.description = json["description"]
         self.fullName = json["fullName"]
@@ -19,13 +18,13 @@ class Suite:
         self.failed = json["failed"]
         self.pending = json["pending"]
         self.skipped = json["skipped"]
-        self.specs = [Spec(spec_json) for spec_json in json["specs"]]
+        self.specs = [Spec(spec_json, self) for spec_json in json["specs"]]
         
     def __str__(self):
         return self.fullName
     
 class Spec:
-    def __init__(self, json : str|dict):
+    def __init__(self, json : str|dict, parentSuite : Suite):
         if isinstance(json, str):
             json = loads(json)
             
@@ -33,6 +32,7 @@ class Spec:
         self.description = json["description"]
         self.fullName = json["fullName"]
         self.filename = json["filename"]
+        self.parentSuite = parentSuite
         self.expectations = [] #type: list[Expectation]
         for expectation in json["failedExpectations"]:
             self.expectations.append(Expectation.from_json(expectation))
