@@ -42,7 +42,6 @@ def parse_report(file) -> tuple[Summary, list[Suite], Suite]:
         
     suites = [Suite(suite) for suite in data["suites"].values()]
     
-    #TODO: handle orphansSpecs (as a suite with no name)
     orphans = Suite.suiteForOrphans(data["orphans"])
         
     #data is like the file report.json
