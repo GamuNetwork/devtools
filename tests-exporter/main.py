@@ -67,8 +67,6 @@ def write_file(file, content):
     with open(file, "w") as f:
         f.write(content)
 
-
-
 def build_index(summary : Summary):
     
     mainInfo_html = load_template("resources/index/info.template.html",
@@ -267,13 +265,19 @@ def build_spec_list_from_suites(suites : list[Suite]):
     
 def main(argv):
     if len(argv) < 2:
-        print("Usage: python main.py <report-file>")
+        print("Usage: python main.py <report-file> [output-dir]")
         sys.exit(1)
 
     file = argv[1]
     if not os.path.isfile(file):
         print(f"File {file} not found")
         sys.exit(1)
+        
+    global OUTPUT_DIR
+    if len(argv) > 2:
+        OUTPUT_DIR = argv[2]
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
         
     summary, suites, orphans = parse_report(file)
     build_index(summary)

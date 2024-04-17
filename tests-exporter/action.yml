@@ -1,0 +1,37 @@
+name: 'Tests Reporter'
+description: 'Create html report from test results'
+
+inputs:
+  test-results-path:
+    description: 'Path to test results'
+    required: true
+  output-folder:
+    description: 'Output folder'
+    required: false
+    default: 'test-report'
+
+outputs:
+  report-path:
+    description: 'Path to the generated report, equal to output-folder if provided'
+    value: ${{ inputs.output-folder }}
+
+runs:
+  using: "composite"
+
+steps:
+# setup python 3.11 environment, install dependencies
+  - name: Setup Python 3.11
+    uses: actions/setup-python@v2
+    with:
+      python-version: '3.11'
+
+  - name: Install dependencies
+    run: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+
+# run the script
+  - name: Run script
+    id: run
+    run: |
+      python main.py ${{ inputs.test-results-path }} ${{ inputs.output-folder }}
