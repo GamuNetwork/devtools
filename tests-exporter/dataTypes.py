@@ -59,7 +59,7 @@ class PlatformData:
 
 
 class Suite:
-    def __init__(self, json : str|dict):
+    def __init__(self, json : str|dict, files : dict[str,dict[str, dict[str, str]]]):
         if isinstance(json, str):
             json = loads(json)
             
@@ -83,14 +83,14 @@ class Suite:
         self.pending = PlatformData.from_dict({key: value["pending"] for key, value in json['platforms'].items()})
         self.skipped = PlatformData.from_dict({key: value["skipped"] for key, value in json['platforms'].items()})
         
-        self.specs = [Spec(spec_json, self) for spec_json in json["specs"].values()]
+        self.specs = [Spec(spec_json, self, files) for spec_json in json["specs"].values()]
 
         
     def __str__(self):
         return self.fullName
     
     @staticmethod
-    def suiteForOrphans(orphansData : dict):
+    def suiteForOrphans(orphansData : dict, files : dict[str,dict[str, dict[str, str]]]):
         return Suite({
             "id": "orphans",
             "description": "specs that are not in any suite",
@@ -99,11 +99,11 @@ class Suite:
             
             "platforms": orphansData["platforms"],
             "specs": orphansData["specs"]
-            
-        })
+        },
+        files)
     
 class Spec:
-    def __init__(self, json : str|dict, parentSuite : Suite|None):
+    def __init__(self, json : str|dict, parentSuite : Suite|None, files : dict[str,dict[str, dict[str, str]]]):
         if isinstance(json, str):
             print(json)
             json = loads(json)
@@ -114,7 +114,7 @@ class Spec:
         self.filename = json["filename"]
         self.parentSuite = parentSuite
         
-        self.expectations = PlatformData.from_dict({key: [Expectation.from_json(expectation) for expectation in value["failedExpectations"] + value["passedExpectations"]] for key, value in json['platforms'].items()})
+        self.expectations = PlatformData.from_dict({key: [Expectation.from_json(expectation, files[key]) for expectation in value["failedExpectations"] + value["passedExpectations"]] for key, value in json['platforms'].items()})
         self.deprecationWarnings = PlatformData.from_dict({key: value["deprecationWarnings"] for key, value in json['platforms'].items()})
         self.duration = PlatformData.from_dict({key: Duration(value["duration"]) for key, value in json['platforms'].items()})
         self.status = PlatformData.from_dict({key: Status(value["status"]) if value["pendingReason"] != "Temporarily disabled with xit" else Status.SKIPPED for key, value in json['platforms'].items()})
@@ -124,37 +124,37 @@ class Spec:
         return self.fullName
 
 class Expectation:
-    def __init__(self, json : str|dict):
+    def __init__(self, json : str|dict, files : dict[str, dict[str, str]]):
         if isinstance(json, str):
             json = loads(json)
             
         self.matcherName = json["matcherName"]
         self.message = json["message"]
-        self.stack = Stack(json["stack"])
+        self.stack = Stack(json["stack"], files)
         self.passed = json["passed"] #type: bool
         
     def __str__(self):
         return self.message
     
     @staticmethod
-    def from_json(json : str|dict):
+    def from_json(json : str|dict, files : dict[str, dict[str, str]]):
         if isinstance(json, str):
             json = loads(json)
             
         if json["passed"]:
-            return PassedExpectation(json)
+            return PassedExpectation(json, files)
         else:
-            return FailedExpectation(json)
+            return FailedExpectation(json, files)
     
 class FailedExpectation(Expectation):
-    def __init__(self, json : str|dict):
-        super().__init__(json)
+    def __init__(self, json : str|dict, files : dict[str, dict[str, str]]):
+        super().__init__(json, files)
         self.expected = json["expected"]
         self.actual = json["actual"]
 
 class PassedExpectation(Expectation):
-    def __init__(self, json : str|dict):
-        super().__init__(json)
+    def __init__(self, json : str|dict, files : dict[str, dict[str, str]]):
+        super().__init__(json, files)
         
 class Status(Enum):
     PASSED = "passed"
@@ -167,42 +167,32 @@ class Status(Enum):
     
 class Stack:
     class Position:
-        def __init__(self, position : str):
-            if position == "(<unknown>)":
-                self.path = None #type: str
-                self.line = None #type: int
-                self.column = None #type: int
-                return
-            
-            self.path, self.line, self.column = re.match(r"(.+):(\d+):(\d+)", position).groups()
-            self.line = int(self.line)
-            self.column = int(self.column)
-            self.path = self.path.split('(')[-1]
+        def __init__(self, stackEntry : dict[str, str]):
+            self.path = stackEntry["filePath"] if "filePath" in stackEntry else None
+            self.line = int(stackEntry["lineNumber"]) if "lineNumber" in stackEntry else None
+            self.column = int(stackEntry["columnNumber"]) if "columnNumber" in stackEntry else None
             
         def __str__(self):
             return f"{self.path}:{self.line}:{self.column}"
     
-    def __init__(self, string : str):
+    def __init__(self, stack : list, files : dict[str, dict[str, str]]):
         self.stack = [] #type: list[Stack.Position]
-        for line in string.split("\n"):
-            line = line.strip()
-            if line.count("(") == 1 and line.count(")") == 1:
-                self.stack.append(self.Position(line))
-            elif line != "":
-                self.stack.append(self.Position("(<unknown>)"))
+        for stackEntry in stack:
+            if stackEntry["filePath"]+":"+stackEntry["lineNumber"] in files.keys():
+                self.stack.append(Stack.Position(stackEntry))
+        
+        self.files = {}
+        for stackEntry in self.stack:
+            if not stackEntry.path in self.files:
+                self.files[stackEntry.path] = files[stackEntry.path+":"+str(stackEntry.line)]
                 
-    def get_context(self, contextSize : int = 5) -> list[tuple[int, str]]:
+    def get_context(self) -> dict[str, str]:
         # read contextSize lines before and after the last position in the stack
         # return the list of lines in the file
         lastPosition = self.get_last_position()
+        return self.files[lastPosition.path]
         
-        lines = [] #type: list[tuple[int, str]]
-        with open(lastPosition.path, "r") as f:
-            for i, line in enumerate(f):
-                if i >= lastPosition.line - contextSize and i <= lastPosition.line + contextSize:
-                    lines.append((i, line))
         
-        return lines
     
     def get_last_position(self) -> Position:
         contextPositionIndex = len(self.stack) - 1

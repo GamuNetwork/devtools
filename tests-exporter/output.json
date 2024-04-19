@@ -3,220 +3,54 @@
         "appName": "gamu",
         "appVersion": "1.0.0",
         "platforms": [
-            "macos",
-            "ubuntu",
             "windows"
         ],
-        "specs": 24,
-        "failures": 9,
-        "passed": 9,
-        "pending": 3,
-        "skipped": 3,
-        "duration": 56,
-        "startDate": "2024-04-17T18:41:18.142Z"
+        "specs": 8,
+        "failures": 3,
+        "passed": 3,
+        "pending": 1,
+        "skipped": 1,
+        "duration": 4,
+        "startDate": "2024-04-19T21:34:06.858Z"
     },
     "suites": {
-        "suite1": {
-            "id": "suite1",
-            "description": "Testing Logger module",
-            "fullName": "Testing Logger module",
-            "parentSuiteId": null,
-            "filename": "E:/gamu/server/tests/modules/Logger.spec.js",
-            "specs": {
-                "spec1": {
-                    "id": "spec1",
-                    "description": "should log a message",
-                    "fullName": "Testing Logger module should log a message",
-                    "parentSuiteId": "suite1",
-                    "filename": "E:/gamu/server/tests/modules/Logger.spec.js",
-                    "platforms": {
-                        "macos": {
-                            "failedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Expected false to be true.",
-                                    "stack": "    at <Jasmine>\n    at UserContext.<anonymous> (E:/gamu/server/tests/modules/Logger.spec.js:7:23)\n    at <Jasmine>",
-                                    "passed": false,
-                                    "expected": true,
-                                    "actual": false
-                                }
-                            ],
-                            "passedExpectations": [],
-                            "deprecationWarnings": [],
-                            "pendingReason": "",
-                            "duration": 1,
-                            "debugLogs": null,
-                            "status": "failed"
-                        },
-                        "ubuntu": {
-                            "failedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Expected false to be true.",
-                                    "stack": "    at <Jasmine>\n    at UserContext.<anonymous> (E:/gamu/server/tests/modules/Logger.spec.js:7:23)\n    at <Jasmine>",
-                                    "passed": false,
-                                    "expected": true,
-                                    "actual": false
-                                }
-                            ],
-                            "passedExpectations": [],
-                            "deprecationWarnings": [],
-                            "pendingReason": "",
-                            "duration": 1,
-                            "debugLogs": null,
-                            "status": "failed"
-                        },
-                        "windows": {
-                            "failedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Expected false to be true.",
-                                    "stack": "    at <Jasmine>\n    at UserContext.<anonymous> (E:\\gamu\\server\\tests\\modules\\Logger.spec.js:7:23)\n    at <Jasmine>",
-                                    "passed": false,
-                                    "expected": true,
-                                    "actual": false
-                                }
-                            ],
-                            "passedExpectations": [],
-                            "deprecationWarnings": [],
-                            "pendingReason": "",
-                            "duration": 0,
-                            "debugLogs": null,
-                            "status": "failed"
-                        }
-                    }
-                },
-                "spec0": {
-                    "id": "spec0",
-                    "description": "should pass",
-                    "fullName": "Testing Logger module should pass",
-                    "parentSuiteId": "suite1",
-                    "filename": "E:/gamu/server/tests/modules/Logger.spec.js",
-                    "platforms": {
-                        "macos": {
-                            "failedExpectations": [],
-                            "passedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Passed.",
-                                    "stack": "",
-                                    "passed": true
-                                }
-                            ],
-                            "deprecationWarnings": [],
-                            "pendingReason": "",
-                            "duration": 0,
-                            "debugLogs": null,
-                            "status": "passed"
-                        },
-                        "ubuntu": {
-                            "failedExpectations": [],
-                            "passedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Passed.",
-                                    "stack": "",
-                                    "passed": true
-                                }
-                            ],
-                            "deprecationWarnings": [],
-                            "pendingReason": "",
-                            "duration": 1,
-                            "debugLogs": null,
-                            "status": "passed"
-                        },
-                        "windows": {
-                            "failedExpectations": [],
-                            "passedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Passed.",
-                                    "stack": "",
-                                    "passed": true
-                                }
-                            ],
-                            "deprecationWarnings": [],
-                            "pendingReason": "",
-                            "duration": 1,
-                            "debugLogs": null,
-                            "status": "passed"
-                        }
-                    }
-                }
-            },
-            "platforms": {
-                "macos": {
-                    "failedExpectations": [],
-                    "deprecationWarnings": [],
-                    "duration": 20,
-                    "passed": 1,
-                    "failed": 1,
-                    "pending": 0,
-                    "skipped": 0,
-                    "status": "passed"
-                },
-                "ubuntu": {
-                    "failedExpectations": [],
-                    "deprecationWarnings": [],
-                    "duration": 3,
-                    "passed": 1,
-                    "failed": 1,
-                    "pending": 0,
-                    "skipped": 0,
-                    "status": "passed"
-                },
-                "windows": {
-                    "failedExpectations": [],
-                    "deprecationWarnings": [],
-                    "duration": 1,
-                    "passed": 1,
-                    "failed": 1,
-                    "pending": 0,
-                    "skipped": 0,
-                    "status": "passed"
-                }
-            }
-        },
         "suite2": {
             "id": "suite2",
             "description": "Test",
             "fullName": "Test",
             "parentSuiteId": null,
-            "filename": "E:/gamu/server/tests/test.spec.js",
+            "filename": "C:\\gamu\\server\\tests\\test.spec.js",
             "specs": {
-                "spec5": {
-                    "id": "spec5",
-                    "description": "should be disabled",
-                    "fullName": "Test should be disabled",
+                "spec3": {
+                    "id": "spec3",
+                    "description": "should fail",
+                    "fullName": "Test should fail",
                     "parentSuiteId": "suite2",
-                    "filename": "E:/gamu/server/tests/test.spec.js",
+                    "filename": "C:\\gamu\\server\\tests\\test.spec.js",
                     "platforms": {
-                        "macos": {
-                            "failedExpectations": [],
-                            "passedExpectations": [],
-                            "deprecationWarnings": [],
-                            "pendingReason": "Temporarily disabled with xit",
-                            "duration": 0,
-                            "debugLogs": null,
-                            "status": "pending"
-                        },
-                        "ubuntu": {
-                            "failedExpectations": [],
-                            "passedExpectations": [],
-                            "deprecationWarnings": [],
-                            "pendingReason": "Temporarily disabled with xit",
-                            "duration": 0,
-                            "debugLogs": null,
-                            "status": "pending"
-                        },
                         "windows": {
-                            "failedExpectations": [],
+                            "failedExpectations": [
+                                {
+                                    "matcherName": "toBe",
+                                    "message": "Expected false to be true.",
+                                    "stack": [
+                                        {
+                                            "filePath": "C:\\gamu\\server\\tests\\test.spec.js",
+                                            "lineNumber": "7",
+                                            "columnNumber": "23"
+                                        }
+                                    ],
+                                    "passed": false,
+                                    "expected": true,
+                                    "actual": false
+                                }
+                            ],
                             "passedExpectations": [],
                             "deprecationWarnings": [],
-                            "pendingReason": "Temporarily disabled with xit",
-                            "duration": 0,
+                            "pendingReason": "",
+                            "duration": 4,
                             "debugLogs": null,
-                            "status": "pending"
+                            "status": "failed"
                         }
                     }
                 },
@@ -225,97 +59,16 @@
                     "description": "should be pending",
                     "fullName": "Test should be pending",
                     "parentSuiteId": "suite2",
-                    "filename": "E:/gamu/server/tests/test.spec.js",
+                    "filename": "C:\\gamu\\server\\tests\\test.spec.js",
                     "platforms": {
-                        "macos": {
-                            "failedExpectations": [],
-                            "passedExpectations": [],
-                            "deprecationWarnings": [],
-                            "pendingReason": "this is a pending test",
-                            "duration": 1,
-                            "debugLogs": null,
-                            "status": "pending"
-                        },
-                        "ubuntu": {
-                            "failedExpectations": [],
-                            "passedExpectations": [],
-                            "deprecationWarnings": [],
-                            "pendingReason": "this is a pending test",
-                            "duration": 1,
-                            "debugLogs": null,
-                            "status": "pending"
-                        },
                         "windows": {
                             "failedExpectations": [],
                             "passedExpectations": [],
                             "deprecationWarnings": [],
                             "pendingReason": "this is a pending test",
-                            "duration": 1,
+                            "duration": 0,
                             "debugLogs": null,
                             "status": "pending"
-                        }
-                    }
-                },
-                "spec3": {
-                    "id": "spec3",
-                    "description": "should fail",
-                    "fullName": "Test should fail",
-                    "parentSuiteId": "suite2",
-                    "filename": "E:/gamu/server/tests/test.spec.js",
-                    "platforms": {
-                        "macos": {
-                            "failedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Expected false to be true.",
-                                    "stack": "    at <Jasmine>\n    at UserContext.<anonymous> (E:/gamu/server/tests/test.spec.js:7:23)\n    at <Jasmine>",
-                                    "passed": false,
-                                    "expected": true,
-                                    "actual": false
-                                }
-                            ],
-                            "passedExpectations": [],
-                            "deprecationWarnings": [],
-                            "pendingReason": "",
-                            "duration": 24,
-                            "debugLogs": null,
-                            "status": "failed"
-                        },
-                        "ubuntu": {
-                            "failedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Expected false to be true.",
-                                    "stack": "    at <Jasmine>\n    at UserContext.<anonymous> (E:/gamu/server/tests/test.spec.js:7:23)\n    at <Jasmine>",
-                                    "passed": false,
-                                    "expected": true,
-                                    "actual": false
-                                }
-                            ],
-                            "passedExpectations": [],
-                            "deprecationWarnings": [],
-                            "pendingReason": "",
-                            "duration": 0,
-                            "debugLogs": null,
-                            "status": "failed"
-                        },
-                        "windows": {
-                            "failedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Expected false to be true.",
-                                    "stack": "    at <Jasmine>\n    at UserContext.<anonymous> (E:/gamu\\server\\tests\\test.spec.js:7:23)\n    at <Jasmine>",
-                                    "passed": false,
-                                    "expected": true,
-                                    "actual": false
-                                }
-                            ],
-                            "passedExpectations": [],
-                            "deprecationWarnings": [],
-                            "pendingReason": "",
-                            "duration": 0,
-                            "debugLogs": null,
-                            "status": "failed"
                         }
                     }
                 },
@@ -324,65 +77,21 @@
                     "description": "should pass",
                     "fullName": "Test should pass",
                     "parentSuiteId": "suite2",
-                    "filename": "E:/gamu/server/tests/test.spec.js",
+                    "filename": "C:\\gamu\\server\\tests\\test.spec.js",
                     "platforms": {
-                        "macos": {
-                            "failedExpectations": [],
-                            "passedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Passed.",
-                                    "stack": "",
-                                    "passed": true
-                                },
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Passed.",
-                                    "stack": "",
-                                    "passed": true
-                                }
-                            ],
-                            "deprecationWarnings": [],
-                            "pendingReason": "",
-                            "duration": 1,
-                            "debugLogs": null,
-                            "status": "passed"
-                        },
-                        "ubuntu": {
-                            "failedExpectations": [],
-                            "passedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Passed.",
-                                    "stack": "",
-                                    "passed": true
-                                },
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Passed.",
-                                    "stack": "",
-                                    "passed": true
-                                }
-                            ],
-                            "deprecationWarnings": [],
-                            "pendingReason": "",
-                            "duration": 0,
-                            "debugLogs": null,
-                            "status": "passed"
-                        },
                         "windows": {
                             "failedExpectations": [],
                             "passedExpectations": [
                                 {
                                     "matcherName": "toBe",
                                     "message": "Passed.",
-                                    "stack": "",
+                                    "stack": [],
                                     "passed": true
                                 },
                                 {
                                     "matcherName": "toBe",
                                     "message": "Passed.",
-                                    "stack": "",
+                                    "stack": [],
                                     "passed": true
                                 }
                             ],
@@ -391,6 +100,24 @@
                             "duration": 0,
                             "debugLogs": null,
                             "status": "passed"
+                        }
+                    }
+                },
+                "spec5": {
+                    "id": "spec5",
+                    "description": "should be disabled",
+                    "fullName": "Test should be disabled",
+                    "parentSuiteId": "suite2",
+                    "filename": "C:\\gamu\\server\\tests\\test.spec.js",
+                    "platforms": {
+                        "windows": {
+                            "failedExpectations": [],
+                            "passedExpectations": [],
+                            "deprecationWarnings": [],
+                            "pendingReason": "Temporarily disabled with xit",
+                            "duration": 0,
+                            "debugLogs": null,
+                            "status": "pending"
                         }
                     }
                 },
@@ -399,14 +126,20 @@
                     "description": "should fail",
                     "fullName": "Test should fail",
                     "parentSuiteId": "suite2",
-                    "filename": "E:/gamu/server/tests/test.spec.js",
+                    "filename": "C:\\gamu\\server\\tests\\test.spec.js",
                     "platforms": {
-                        "macos": {
+                        "windows": {
                             "failedExpectations": [
                                 {
                                     "matcherName": "toBe",
                                     "message": "Expected 1 to be 2.",
-                                    "stack": "    at <Jasmine>\n    at UserContext.<anonymous> (E:/gamu/server/tests/test.spec.js:18:19)\n    at <Jasmine>",
+                                    "stack": [
+                                        {
+                                            "filePath": "C:\\gamu\\server\\tests\\test.spec.js",
+                                            "lineNumber": "18",
+                                            "columnNumber": "19"
+                                        }
+                                    ],
                                     "passed": false,
                                     "expected": 2,
                                     "actual": 1
@@ -416,44 +149,13 @@
                                 {
                                     "matcherName": "toBe",
                                     "message": "Passed.",
-                                    "stack": "",
+                                    "stack": [],
                                     "passed": true
                                 },
                                 {
                                     "matcherName": "toBe",
                                     "message": "Passed.",
-                                    "stack": "",
-                                    "passed": true
-                                }
-                            ],
-                            "deprecationWarnings": [],
-                            "pendingReason": "",
-                            "duration": 19,
-                            "debugLogs": null,
-                            "status": "failed"
-                        },
-                        "ubuntu": {
-                            "failedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Expected 1 to be 2.",
-                                    "stack": "    at <Jasmine>\n    at UserContext.<anonymous> (E:/gamu/server/tests/test.spec.js:18:19)\n    at <Jasmine>",
-                                    "passed": false,
-                                    "expected": 2,
-                                    "actual": 1
-                                }
-                            ],
-                            "passedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Passed.",
-                                    "stack": "",
-                                    "passed": true
-                                },
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Passed.",
-                                    "stack": "",
+                                    "stack": [],
                                     "passed": true
                                 }
                             ],
@@ -462,66 +164,15 @@
                             "duration": 0,
                             "debugLogs": null,
                             "status": "failed"
-                        },
-                        "windows": {
-                            "failedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Expected 1 to be 2.",
-                                    "stack": "    at <Jasmine>\n    at UserContext.<anonymous> (E:/gamu\\server\\tests\\test.spec.js:18:19)\n    at <Jasmine>",
-                                    "passed": false,
-                                    "expected": 2,
-                                    "actual": 1
-                                }
-                            ],
-                            "passedExpectations": [
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Passed.",
-                                    "stack": "",
-                                    "passed": true
-                                },
-                                {
-                                    "matcherName": "toBe",
-                                    "message": "Passed.",
-                                    "stack": "",
-                                    "passed": true
-                                }
-                            ],
-                            "deprecationWarnings": [],
-                            "pendingReason": "",
-                            "duration": 2,
-                            "debugLogs": null,
-                            "status": "failed"
                         }
                     }
                 }
             },
             "platforms": {
-                "macos": {
-                    "failedExpectations": [],
-                    "deprecationWarnings": [],
-                    "duration": 74,
-                    "passed": 1,
-                    "failed": 2,
-                    "pending": 1,
-                    "skipped": 1,
-                    "status": "passed"
-                },
-                "ubuntu": {
-                    "failedExpectations": [],
-                    "deprecationWarnings": [],
-                    "duration": 2,
-                    "passed": 1,
-                    "failed": 2,
-                    "pending": 1,
-                    "skipped": 1,
-                    "status": "passed"
-                },
                 "windows": {
                     "failedExpectations": [],
                     "deprecationWarnings": [],
-                    "duration": 5,
+                    "duration": 9,
                     "passed": 1,
                     "failed": 2,
                     "pending": 1,
@@ -529,26 +180,89 @@
                     "status": "passed"
                 }
             }
+        },
+        "suite1": {
+            "id": "suite1",
+            "description": "Testing Logger module",
+            "fullName": "Testing Logger module",
+            "parentSuiteId": null,
+            "filename": "C:\\gamu\\server\\tests\\modules\\Logger.spec.js",
+            "specs": {
+                "spec0": {
+                    "id": "spec0",
+                    "description": "should pass",
+                    "fullName": "Testing Logger module should pass",
+                    "parentSuiteId": "suite1",
+                    "filename": "C:\\gamu\\server\\tests\\modules\\Logger.spec.js",
+                    "platforms": {
+                        "windows": {
+                            "failedExpectations": [],
+                            "passedExpectations": [
+                                {
+                                    "matcherName": "toBe",
+                                    "message": "Passed.",
+                                    "stack": [],
+                                    "passed": true
+                                }
+                            ],
+                            "deprecationWarnings": [],
+                            "pendingReason": "",
+                            "duration": 0,
+                            "debugLogs": null,
+                            "status": "passed"
+                        }
+                    }
+                },
+                "spec1": {
+                    "id": "spec1",
+                    "description": "should log a message",
+                    "fullName": "Testing Logger module should log a message",
+                    "parentSuiteId": "suite1",
+                    "filename": "C:\\gamu\\server\\tests\\modules\\Logger.spec.js",
+                    "platforms": {
+                        "windows": {
+                            "failedExpectations": [
+                                {
+                                    "matcherName": "toBe",
+                                    "message": "Expected false to be true.",
+                                    "stack": [
+                                        {
+                                            "filePath": "C:\\gamu\\server\\tests\\modules\\Logger.spec.js",
+                                            "lineNumber": "7",
+                                            "columnNumber": "23"
+                                        }
+                                    ],
+                                    "passed": false,
+                                    "expected": true,
+                                    "actual": false
+                                }
+                            ],
+                            "passedExpectations": [],
+                            "deprecationWarnings": [],
+                            "pendingReason": "",
+                            "duration": 0,
+                            "debugLogs": null,
+                            "status": "failed"
+                        }
+                    }
+                }
+            },
+            "platforms": {
+                "windows": {
+                    "failedExpectations": [],
+                    "deprecationWarnings": [],
+                    "duration": 2,
+                    "passed": 1,
+                    "failed": 1,
+                    "pending": 0,
+                    "skipped": 0,
+                    "status": "passed"
+                }
+            }
         }
     },
     "orphans": {
         "platforms": {
-            "macos": {
-                "failed": 0,
-                "passed": 1,
-                "pending": 0,
-                "skipped": 0,
-                "duration": 2,
-                "specs": 1
-            },
-            "ubuntu": {
-                "failed": 0,
-                "passed": 1,
-                "pending": 0,
-                "skipped": 0,
-                "duration": 1,
-                "specs": 1
-            },
             "windows": {
                 "failed": 0,
                 "passed": 1,
@@ -564,47 +278,15 @@
                 "description": "should be a top-level test",
                 "fullName": "should be a top-level test",
                 "parentSuiteId": null,
-                "filename": "E:/gamu/server/tests/test.spec.js",
+                "filename": "C:\\gamu\\server\\tests\\test.spec.js",
                 "platforms": {
-                    "macos": {
-                        "failedExpectations": [],
-                        "passedExpectations": [
-                            {
-                                "matcherName": "toBe",
-                                "message": "Passed.",
-                                "stack": "",
-                                "passed": true
-                            }
-                        ],
-                        "deprecationWarnings": [],
-                        "pendingReason": "",
-                        "duration": 2,
-                        "debugLogs": null,
-                        "status": "passed"
-                    },
-                    "ubuntu": {
-                        "failedExpectations": [],
-                        "passedExpectations": [
-                            {
-                                "matcherName": "toBe",
-                                "message": "Passed.",
-                                "stack": "",
-                                "passed": true
-                            }
-                        ],
-                        "deprecationWarnings": [],
-                        "pendingReason": "",
-                        "duration": 1,
-                        "debugLogs": null,
-                        "status": "passed"
-                    },
                     "windows": {
                         "failedExpectations": [],
                         "passedExpectations": [
                             {
                                 "matcherName": "toBe",
                                 "message": "Passed.",
-                                "stack": "",
+                                "stack": [],
                                 "passed": true
                             }
                         ],
@@ -615,6 +297,43 @@
                         "status": "passed"
                     }
                 }
+            }
+        }
+    },
+    "files": {
+        "windows": {
+            "C:\\gamu\\server\\tests\\test.spec.js:7": {
+                "3": "        expect(true).toBe(true);\r",
+                "4": "        expect(1).toBe(1);\r",
+                "5": "    });\r",
+                "6": "    it('should fail', () => {\r",
+                "7": "        expect(false).toBe(true);\r",
+                "8": "    });\r",
+                "9": "    it('should be pending', () => {\r",
+                "10": "        pending('this is a pending test');\r",
+                "11": "    });\r",
+                "12": "    xit('should be disabled', () => {\r"
+            },
+            "C:\\gamu\\server\\tests\\test.spec.js:18": {
+                "14": "    });\r",
+                "15": "    it('should fail', () => {\r",
+                "16": "        expect(true).toBe(true);\r",
+                "17": "        expect(false).toBe(false);\r",
+                "18": "        expect(1).toBe(2);\r",
+                "19": "    });\r",
+                "20": "});\r",
+                "21": "\r",
+                "22": "it('should be a top-level test', () => {\r",
+                "23": "    expect(true).toBe(true);\r"
+            },
+            "C:\\gamu\\server\\tests\\modules\\Logger.spec.js:7": {
+                "3": "        expect(true).toBe(true);\r",
+                "4": "    });\r",
+                "5": "\r",
+                "6": "    it('should log a message', () => {\r",
+                "7": "        expect(false).toBe(true);\r",
+                "8": "    });\r",
+                "9": "});"
             }
         }
     }

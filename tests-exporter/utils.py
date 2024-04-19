@@ -76,3 +76,16 @@ def getStatusTotal(status : PlatformData) -> Status:
         elif value == Status.PASSED and result != Status.PENDING:
             result = Status.PASSED
     return result
+
+def getStatusFromSuite(suite : Suite) -> Status:
+    #order of precedence: FAILED > PENDING > PASSED > SKIPPED
+    result = Status.SKIPPED
+    for spec in suite.specs:
+        status = getStatusTotal(spec.status)
+        if status == Status.FAILED:
+            return Status.FAILED
+        elif status == Status.PENDING:
+            result = Status.PENDING
+        elif status == Status.PASSED and result != Status.PENDING:
+            result = Status.PASSED
+    return result

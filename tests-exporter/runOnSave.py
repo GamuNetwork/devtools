@@ -48,6 +48,7 @@ def main():
         FILES = temp
         
         if modified:
+            print() # Empty line
             response = sp.run([sys.executable, "main.py", "output.json"])
             if response.returncode == 0:
                 print("Report generated")

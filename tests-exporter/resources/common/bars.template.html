@@ -55,7 +55,22 @@
         var layout = {
             barmode: 'stack',
             paper_bgcolor: 'transparent',
-            font: {color: 'white'}
+            plot_bgcolor: 'transparent',
+            margin: {l: 100, r: 100, t: 50, b: 50},
+            xaxis: {title: 'Tests', color: 'white'},
+            yaxis: {title: 'Platforms', color: 'white', automargin: true, tickangle: -45, tickfont: {size: 15}},
+            
+            //place the legend above the plot, all on the same line
+            legend: {
+                x: 0.5,
+                y: 1.1,
+                xanchor: 'center',
+                yanchor: 'top',
+                orientation: 'h',
+                bgcolor: 'rgba(255, 255, 255, 0)',
+                bordercolor: 'rgba(255, 255, 255, 0)',
+                font: {color: 'white'}
+            }
         };
         var config = {responsive: true}
         Plotly.newPlot('summaryPie_{{uid}}', data, layout, config)

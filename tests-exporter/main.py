@@ -3,7 +3,8 @@ import os
 import sys
 from datetime import datetime, timedelta, timezone
 from dataTypes import Suite, Summary, Spec, Status, Stack, PLATFORM, Duration, PlatformData
-from utils import clearFolder, load_template, getIcon, write_file_wrapper, getColorClass, toJson, getStatusTotal
+from utils import *
+from typing import Callable
 
 OUTPUT_DIR = "reports"
 write_file = write_file_wrapper(OUTPUT_DIR)
@@ -32,12 +33,16 @@ def parse_report(file) -> tuple[Summary, list[Suite], Suite]:
         print("Invalid JSON5 format")
         sys.exit(1)
         
-    suites = [Suite(suite) for suite in data["suites"].values()]
+    summary = Summary(data["summary"])
+        
+    files = data["files"]
+        
+    suites = [Suite(suite, files) for suite in data["suites"].values()]
     
-    orphans = Suite.suiteForOrphans(data["orphans"])
+    orphans = Suite.suiteForOrphans(data["orphans"], files)
         
     #data is like the file report.json
-    return Summary(data["summary"]), suites, orphans
+    return summary, suites, orphans
 
 def build_platform_badge(platform : PLATFORM):
     return load_template("resources/common/platformBadge.template.html",
@@ -131,7 +136,8 @@ def build_stack(stack : Stack):
     context = stack.get_context()
     
     lines = ""
-    for lineNumber, line in context:
+    for lineNumber, line in context.items():
+        lineNumber = int(lineNumber)
         line_html = load_template("resources/suites/stack/line.template.html",
                                 lineNumber=lineNumber,
                                 line=line,
@@ -249,6 +255,7 @@ def build_suite_list(suites : list[Suite]):
         
         suite_html = load_template("resources/suiteslist/suite.template.html",
                                 suiteName=suite.fullName,
+                                statusBadge = build_status_badge(getStatusFromSuite(suite)),
                                 description=suite.description,
                                 fileName=suite.filename,
                                 duration=build_durations_list(suite.duration),
@@ -271,7 +278,7 @@ def build_suite_list(suites : list[Suite]):
     
 def build_spec_inline(spec : Spec):
     spec_html = load_template("resources/specslist/spec.template.html",
-                            suite=spec.parentSuite.fullName,
+                            suite=spec.parentSuite.fullName if spec.parentSuite.id != "orphans" else "",
                             name=spec.fullName,
                             statusBadge=build_status_badge(getStatusTotal(spec.status)),
                             details="/suites/" + spec.parentSuite.id + ".html#" + spec.id
@@ -323,13 +330,43 @@ def main(argv):
             
         
     summary, suites, orphans = parse_report(file)
-    build_index(summary)
+    
+    print("Building index", end="")
+    try:
+        build_index(summary)
+    except Exception as e:
+        print(f" - Error: {e}")
+    else:
+        print(f" - Done")
+    
     
     for suite in suites+[orphans]:
-        build_suite_index(suite)
+        print(f"Building suite {suite.fullName}", end="")
+        try:
+            build_suite_index(suite)
+        except Exception as e:
+            print(f" - Error: {e}")
+            raise e
+        else:
+            print(f" - Done")
         
-    build_suite_list(suites+[orphans])
-    build_spec_list_from_suites([orphans]+suites)
+    print("Building suite list", end="")
+    try:
+        build_suite_list(suites+[orphans])
+    except Exception as e:
+        print(f" - Error: {e}")
+    else:
+        print(f" - Done")
+    
+    print("Building spec list", end="")
+    try:
+        build_spec_list_from_suites(suites+[orphans])
+    except Exception as e:
+        print(f" - Error: {e}")
+    else:
+        print(f" - Done")
+        
+    print("Building complete")
     
 if __name__ == "__main__":
     main(sys.argv)
