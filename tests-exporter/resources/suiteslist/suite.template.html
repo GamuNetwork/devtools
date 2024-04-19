@@ -3,17 +3,21 @@
     <div class="collapse-content">
         <!-- description, duration, total specs, passed, failed, pending, skipped, button-link to details -->
         <div class="flex flex-row justify-between">
-            <div class="flex flex-col">
+            <div class="flex flex-col w-full">
                 <p class="text-lg m-2 p-4">{{description}}</p>
                 <div class="stat bg-base-100 m-2 rounded-lg shadow-lg bg-opacity-60 backdrop-blur-md">
                     <div class="stat-title">Duration</div>
-                    <div class="stat-value">{{duration}}</div>
+                    <div class="stat-value">
+                        <ul>
+                            {{duration}}
+                        </ul>
+                    </div>
                 </div>
                 <div class="stat bg-base-100 m-2 rounded-lg shadow-lg bg-opacity-60 backdrop-blur-md">
                     <div class="stat-title">File</div>
-                    <div class="stat-value"><code>{{fileName}}</code></div>
+                    <div class="stat-value truncate">{{fileName}}</div>
                 </div>
-                {{pie}}
+                {{bars}}
             </div>
             <a class="btn btn-outline btn-info" href="{{details}}">Details</a>
         </div>

@@ -14,7 +14,7 @@ def mergeSummary(summaries):
     output = {}
     output["appName"] = summaries[0]["appName"]
     output["appVersion"] = summaries[0]["appVersion"]
-    output["os"] = [summary["os"] for summary in summaries]
+    output["platforms"] = [summary["os"] for summary in summaries]
     output["specs"] = sum([summary["specs"] for summary in summaries], 0)
     output["failures"] = sum([summary["failures"] for summary in summaries], 0)
     output["passed"] = sum([summary["passed"] for summary in summaries], 0)
@@ -56,11 +56,18 @@ def mergeOrphans(orphans, platforms):
     print("Merging orphans")
     
     output = {}
-    output["passed"] = sum([orphan["passed"] for orphan in orphans], 0)
-    output["failed"] = sum([orphan["failed"] for orphan in orphans], 0)
-    output["pending"] = sum([orphan["pending"] for orphan in orphans], 0)
-    output["skipped"] = sum([orphan["skipped"] for orphan in orphans], 0)
-    output["duration"] = sum([orphan["duration"] for orphan in orphans], 0)
+    
+    output["platforms"] = {}
+    for i in range(len(orphans)):
+        platform = platforms[i]
+        orphan = orphans[i]
+        output["platforms"][platform] = {}
+        output["platforms"][platform]["failed"] = orphan["failed"]
+        output["platforms"][platform]["passed"] = orphan["passed"]
+        output["platforms"][platform]["pending"] = orphan["pending"]
+        output["platforms"][platform]["skipped"] = orphan["skipped"]
+        output["platforms"][platform]["duration"] = orphan["duration"]
+        output["platforms"][platform]["specs"] = orphan["failed"] + orphan["passed"] + orphan["pending"] + orphan["skipped"]
     
     output["specs"] = {}
     for key in orphans[0]["specs"].keys():
@@ -96,6 +103,10 @@ def mergeSuites(suites, platforms): # suites is the list of the same suite from 
         output["platforms"][platform]["failedExpectations"] = suite["failedExpectations"]
         output["platforms"][platform]["deprecationWarnings"] = suite["deprecationWarnings"]
         output["platforms"][platform]["duration"] = suite["duration"]
+        output["platforms"][platform]["passed"] = suite["passed"]
+        output["platforms"][platform]["failed"] = suite["failed"]
+        output["platforms"][platform]["pending"] = suite["pending"]
+        output["platforms"][platform]["skipped"] = suite["skipped"]
         output["platforms"][platform]["status"] = suite["status"]
 
     

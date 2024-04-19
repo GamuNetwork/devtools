@@ -18,6 +18,14 @@
             <div class="stat-title">Tests duration</div>
             <div class="stat-value">{{testDuration}}</div>
         </div>
+        <div class="stat">
+            <div class="stat-title">Platforms used</div>
+            <div class="stat-value">
+                <div class="flex flex-wrap">
+                    {{platforms}}
+                </div>
+            </div>
+        </div>
     </div>
     <script>
         let date = new Date("{{testDateTime}}");

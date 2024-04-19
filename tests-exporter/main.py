@@ -1,22 +1,14 @@
-from xml.etree import ElementTree as ET
 from json5 import loads
 import os
 import sys
 from datetime import datetime, timedelta, timezone
-from dateutil import parser
-
-from dataTypes import Suite, Summary, Spec, Status, Stack
+from dataTypes import Suite, Summary, Spec, Status, Stack, PLATFORM, Duration, PlatformData
+from utils import clearFolder, load_template, getIcon, write_file_wrapper, getColorClass, toJson, getStatusTotal
 
 OUTPUT_DIR = "reports"
+write_file = write_file_wrapper(OUTPUT_DIR)
 
-TIMEZONE = timezone(timedelta(hours=0))
-
-def load_template(file, **kwargs):
-    with open(file, "r") as f:
-        template = f.read() #type: str
-    for key, value in kwargs.items():
-        template = template.replace("{{" + key + "}}", str(value))
-    return template
+UTC = timezone(timedelta(hours=0)) #UTC
 
 def parse_report(file) -> tuple[Summary, list[Suite], Suite]:
     with open(file, "r") as f:
@@ -47,33 +39,57 @@ def parse_report(file) -> tuple[Summary, list[Suite], Suite]:
     #data is like the file report.json
     return Summary(data["summary"]), suites, orphans
 
-def getColorClass(status : Status) -> str:
-    match status:
-        case Status.PASSED:
-            return "success"
-        case Status.FAILED:
-            return "error"
-        case Status.PENDING:
-            return "warning"
-        case Status.SKIPPED:
-            return "info"
-        case _:
-            return "secondary"
+def build_platform_badge(platform : PLATFORM):
+    return load_template("resources/common/platformBadge.template.html",
+                        name=platform.name,
+                        icon=getIcon(platform.name)
+                    )
 
-def write_file(file, content):
-    file = os.path.join(OUTPUT_DIR, file)
-    if not os.path.exists(os.path.dirname(file)):
-        os.makedirs(os.path.dirname(file))
-    with open(file, "w") as f:
-        f.write(content)
+def build_status_badge(status : Status):
+    return load_template("resources/common/statusBadge.template.html",
+                        status=status,
+                        color=getColorClass(status),
+                        icon=getIcon(status.name)
+                    )
+
+def build_durations_list(durations : PlatformData):
+    durationList = ""
+    for platform, duration in durations.items():
+        badge = build_platform_badge(platform)
+        duration_html = load_template("resources/common/statsList.template.html",
+                                platformBadge=badge,
+                                data=duration.get()
+                            )
+        durationList += duration_html
+    return durationList
+
+def build_data_list(data : PlatformData):
+    dataList = ""
+    for platform, value in data.items():
+        badge = build_platform_badge(platform)
+        data_html = load_template("resources/common/statsList.template.html",
+                            platformBadge=badge,
+                            data=value
+                        )
+        dataList += data_html
+    return dataList
 
 def build_index(summary : Summary):
     
+    platforms = ""
+    for platform in summary.platforms:
+        platform_html = load_template("resources/index/platformListElement.template.html",
+                                name=platform.name,
+                                icon=getIcon(platform.name),
+                            )
+        platforms += platform_html
+        
     mainInfo_html = load_template("resources/index/info.template.html",
                             appName=summary.appName,
                             appVersion=summary.appVersion,
                             testDateTime=summary.startDate.strftime("%Y-%m-%d %H:%M:%S %Z"),
-                            testDuration=summary.duration.get()
+                            testDuration=summary.duration.get(),
+                            platforms=platforms
                         )
     
     summary_html = load_template("resources/common/pie.template.html", 
@@ -101,8 +117,7 @@ def build_index(summary : Summary):
     
     header = load_template("resources/common/header.template.html")
     footer = load_template("resources/common/footer.template.html",
-                            #datetime now in UTC
-                            datetime=datetime.now(TIMEZONE).strftime("%Y-%m-%d %H:%M:%S %Z")
+                            datetime=datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S %Z")
                     )
     
     #load the main template
@@ -136,54 +151,72 @@ def build_suite_index(suite : Suite):
                             name=suite.fullName,
                             description=suite.description,
                             filename=suite.filename,
-                            duration=suite.duration.get()
+                            duration=build_durations_list(suite.duration)
                         )
     
-    pie = load_template("resources/common/pie.template.html",
-                            passed=suite.passed,
-                            failed=suite.failed,
-                            pending=suite.pending,
-                            skipped=suite.skipped,
-                            uid=suite.id
-                        )
+    platforms = PlatformData.getPlatformList()
+    passed = suite.passed.getInOrder(platforms)
+    failed = suite.failed.getInOrder(platforms)
+    pending = suite.pending.getInOrder(platforms)
+    skipped = suite.skipped.getInOrder(platforms)
+    
+    bars = load_template("resources/common/bars.template.html",
+                        passed=passed,
+                        failed=failed,
+                        pending=pending,
+                        skipped=skipped,
+                        platforms=toJson([str(platform) for platform in platforms]),
+                        uid=suite.id
+                    )
     
     details = load_template("resources/suites/details.template.html",
-                            passed=suite.passed,
-                            failed=suite.failed,
-                            pending=suite.pending,
-                            skipped=suite.skipped,
-                            total=len(suite.specs)
+                            passed=build_data_list(suite.passed),
+                            failed=build_data_list(suite.failed),
+                            pending=build_data_list(suite.pending),
+                            skipped=build_data_list(suite.skipped),
+                            total=len(suite.specs)*len(platforms)
                         )
     
     specs = ""
     for spec in suite.specs:
-        content = ""
-        match spec.status:
-            case Status.PASSED:
-                content = "No additional information"
-            case Status.FAILED:
-                content = ''.join([build_stack(expect.stack) for expect in spec.expectations if not expect.passed])
-            case Status.PENDING:
-                content = spec.pendingReason
-            case Status.SKIPPED:
-                content = "This test was manually skipped"
+                
+        tabsContent = ""
+        for platform in platforms:
+            content = ""
+            match spec.status[platform]:
+                case Status.PASSED:
+                    content = "No additional information"
+                case Status.FAILED:
+                    content = ''.join([build_stack(expect.stack) for expect in spec.expectations[platform] if not expect.passed])
+                case Status.PENDING:
+                    content = spec.pendingReason
+                case Status.SKIPPED:
+                    content = "This test was manually skipped"
+            
+            tab_html = load_template("resources/suites/specs/tabContent.template.html",
+                                platform=platform.name,
+                                duration=spec.duration[platform].get(),
+                                content=content, 
+                                checked="checked" if platform == platforms[0] else "",
+                                uid=spec.id
+                            )  
+            tabsContent += tab_html
         
         spec_html = load_template("resources/suites/spec.template.html",
                                 fullname=spec.fullName,
-                                status=spec.status,
-                                colorClass=getColorClass(spec.status),
+                                statusBadge=build_status_badge(getStatusTotal(spec.status)),
                                 description=spec.description,
-                                content=content,
-                                id=spec.id
+                                tabsContent = tabsContent
+                                # content=content,
+                                # id=spec.id
                             )
         specs += spec_html
     
     suitePage = load_template("resources/suites/page.template.html",
                             mainInfo=suiteInfo,
-                            pie=pie,
+                            bars=bars,
                             details=details,
-                            specList=specs,
-                            duration=suite.duration.get()
+                            specList=specs
                         )
     
     header = load_template("resources/common/header.template.html")
@@ -199,11 +232,18 @@ def build_suite_list(suites : list[Suite]):
     suiteList = ""
     for suite in suites:
         
-        pie = load_template("resources/common/pie.template.html",
-                            passed=suite.passed,
-                            failed=suite.failed,
-                            pending=suite.pending,
-                            skipped=suite.skipped,
+        platforms = PlatformData.getPlatformList()
+        passed = suite.passed.getInOrder(platforms)
+        failed = suite.failed.getInOrder(platforms)
+        pending = suite.pending.getInOrder(platforms)
+        skipped = suite.skipped.getInOrder(platforms)
+        
+        bars = load_template("resources/common/bars.template.html",
+                            passed=passed,
+                            failed=failed,
+                            pending=pending,
+                            skipped=skipped,
+                            platforms=toJson([str(platform) for platform in platforms]),
                             uid=suite.id
                         )
         
@@ -211,8 +251,8 @@ def build_suite_list(suites : list[Suite]):
                                 suiteName=suite.fullName,
                                 description=suite.description,
                                 fileName=suite.filename,
-                                duration=suite.duration.get(),
-                                pie=pie,
+                                duration=build_durations_list(suite.duration),
+                                bars = bars,
                                 details=f"/suites/{suite.id}.html"
                             )
         suiteList += suite_html
@@ -233,8 +273,7 @@ def build_spec_inline(spec : Spec):
     spec_html = load_template("resources/specslist/spec.template.html",
                             suite=spec.parentSuite.fullName,
                             name=spec.fullName,
-                            status=spec.status,
-                            statusColorClass=getColorClass(spec.status),
+                            statusBadge=build_status_badge(getStatusTotal(spec.status)),
                             details="/suites/" + spec.parentSuite.id + ".html#" + spec.id
                         )
     return spec_html
@@ -263,6 +302,10 @@ def build_spec_list_from_suites(suites : list[Suite]):
         
     build_spec_list(specs)
     
+    
+    
+    
+    
 def main(argv):
     if len(argv) < 2:
         print("Usage: python main.py <report-file> [output-dir]")
@@ -276,8 +319,8 @@ def main(argv):
     global OUTPUT_DIR
     if len(argv) > 2:
         OUTPUT_DIR = argv[2]
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
+    clearFolder(OUTPUT_DIR)
+            
         
     summary, suites, orphans = parse_report(file)
     build_index(summary)

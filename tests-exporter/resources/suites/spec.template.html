@@ -1,26 +1,12 @@
 <div class="collapse collapse-plus bg-base-200 rounded-lg my-2 w-full">
     <input type="radio" name="coll" id="{{id}}" class="collapse-open">
-    <div class="collapse-title text-xl font-bold"><div class="badge badge-outline badge-{{colorClass}} w-20">{{status}}</div>&nbsp;&nbsp;{{fullname}}</div>
+    <div class="collapse-title text-xl font-bold">{{statusBadge}}&nbsp;&nbsp;{{fullname}}</div>
     <div class="collapse-content">
-        <!-- display:
-            description : paragraph
-            duration : badge
-            if status is failed:
-                for each failedExpectation:
-                    message : paragraph
-                    stack : code
-                    expected value and actual value : paragraph
-            if status is pending:
-                pendingReason : paragraph
-            if status is skipped:
-                skippedReason : paragraph
-        -->
-        <div id="duration" class="badge badge-primary">
-            Ran in {{duration}}
-        </div>
         <p id="description" class="text-lg">
             {{description}}
         </p>
-        {{content}}
+        <div role="tablist" class="tabs tabs-lifted">
+            {{tabsContent}}
+        </div>
     </div>
 </div>

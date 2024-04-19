@@ -3,22 +3,88 @@ from json5 import loads
 from datetime import datetime, timedelta
 import re
 
+class PLATFORM(Enum):
+    MACOS = "macos"
+    WINDOWS = "windows"
+    LINUX = "ubuntu"
+    
+    def __str__(self):
+        return self.value
+    
+class PlatformData:
+    Platforms = [PLATFORM.MACOS, PLATFORM.WINDOWS, PLATFORM.LINUX]
+    @staticmethod
+    def setPlatformList(platforms : list[PLATFORM]):
+        PlatformData.Platforms = platforms
+    @staticmethod
+    def getPlatformList():
+        return PlatformData.Platforms
+    
+    def __init__(self, **kwargs):
+        if len(kwargs) != len(PlatformData.Platforms):
+            print(kwargs)
+            raise ValueError("Invalid number of platforms; expected " + str(len(PlatformData.Platforms)) + " but got " + str(len(kwargs)))
+    
+        if not all(isinstance(value, type(next(iter(kwargs.values())))) for value in kwargs.values()):
+            raise ValueError("All values must be of the same type; got " + str({type(value) for value in kwargs.values()}))
+        
+        self.data = {platform: kwargs[str(platform)] for platform in PlatformData.Platforms} #type: dict[PLATFORM, any]
+        
+    def getInOrder(self, order : list[PLATFORM]) -> list[any]:
+        return [self[platform] for platform in order]
+        
+    def getType(self):
+        return type(next(iter(self.data.values())))
+        
+    @staticmethod
+    def from_dict(data : dict):
+        return PlatformData(**data)
+    
+    def __getitem__(self, platform : PLATFORM|str):
+        if isinstance(platform, PLATFORM):
+            return self.data[platform]
+        return self.data[PLATFORM(platform)]
+    
+    def __str__(self):
+        return str(self.data)
+    
+    def __iter__(self):
+        return iter(self.data)
+    
+    def __len__(self):
+        return len(self.data)
+    
+    def items(self):
+        return self.data.items()
+
+
 class Suite:
     def __init__(self, json : str|dict):
         if isinstance(json, str):
             json = loads(json)
             
+        # common fields
         self.id = json["id"]
         self.description = json["description"]
         self.fullName = json["fullName"]
         self.filename = json["filename"]
-        self.duration = Duration(json["duration"])
-        self.properties = json["properties"]
-        self.passed = json["passed"]
-        self.failed = json["failed"]
-        self.pending = json["pending"]
-        self.skipped = json["skipped"]
-        self.specs = [Spec(spec_json, self) for spec_json in json["specs"]]
+        
+        # specific fields by platform
+        # self.duration = Duration(json["duration"])
+        # self.passed = json["passed"]
+        # self.failed = json["failed"]
+        # self.pending = json["pending"]
+        # self.skipped = json["skipped"]
+        # self.specs = [Spec(spec_json, self) for spec_json in json["specs"]]
+        
+        self.duration = PlatformData.from_dict({key: Duration(value["duration"]) for key, value in json['platforms'].items()})
+        self.passed = PlatformData.from_dict({key: value["passed"] for key, value in json['platforms'].items()})
+        self.failed = PlatformData.from_dict({key: value["failed"] for key, value in json['platforms'].items()})
+        self.pending = PlatformData.from_dict({key: value["pending"] for key, value in json['platforms'].items()})
+        self.skipped = PlatformData.from_dict({key: value["skipped"] for key, value in json['platforms'].items()})
+        
+        self.specs = [Spec(spec_json, self) for spec_json in json["specs"].values()]
+
         
     def __str__(self):
         return self.fullName
@@ -30,18 +96,16 @@ class Suite:
             "description": "specs that are not in any suite",
             "fullName": "Specs that are not in any suite",
             "filename": "No specific file",
-            "duration": orphansData["duration"],
-            "properties": {},
-            "passed": orphansData["passed"],
-            "failed": orphansData["failed"],
-            "pending": orphansData["pending"],
-            "skipped": orphansData["skipped"],
+            
+            "platforms": orphansData["platforms"],
             "specs": orphansData["specs"]
+            
         })
     
 class Spec:
     def __init__(self, json : str|dict, parentSuite : Suite|None):
         if isinstance(json, str):
+            print(json)
             json = loads(json)
             
         self.id = json["id"]
@@ -49,16 +113,12 @@ class Spec:
         self.fullName = json["fullName"]
         self.filename = json["filename"]
         self.parentSuite = parentSuite
-        self.expectations = [] #type: list[Expectation]
-        for expectation in json["failedExpectations"]:
-            self.expectations.append(Expectation.from_json(expectation))
-        for expectation in json["passedExpectations"]:
-            self.expectations.append(Expectation.from_json(expectation))
-        self.deprecationWarnings = json["deprecationWarnings"]
-        self.duration = Duration(json["duration"])
-        self.properties = json["properties"]
-        self.status = Status(json["status"]) if json["pendingReason"] != "Temporarily disabled with xit" else Status.SKIPPED
-        self.pendingReason = json["pendingReason"] if self.status == Status.PENDING else None
+        
+        self.expectations = PlatformData.from_dict({key: [Expectation.from_json(expectation) for expectation in value["failedExpectations"] + value["passedExpectations"]] for key, value in json['platforms'].items()})
+        self.deprecationWarnings = PlatformData.from_dict({key: value["deprecationWarnings"] for key, value in json['platforms'].items()})
+        self.duration = PlatformData.from_dict({key: Duration(value["duration"]) for key, value in json['platforms'].items()})
+        self.status = PlatformData.from_dict({key: Status(value["status"]) if value["pendingReason"] != "Temporarily disabled with xit" else Status.SKIPPED for key, value in json['platforms'].items()})
+        self.pendingReason = PlatformData.from_dict({key: value["pendingReason"] if self.status[key] == Status.PENDING else None for key, value in json['platforms'].items()})
         
     def __str__(self):
         return self.fullName
@@ -175,8 +235,11 @@ class Summary:
         self.skipped = json["skipped"]
         self.passed = json["passed"]
         assert self.passed == self.specs - self.failures - self.pending - self.skipped # sanity check
+        self.platforms = [PLATFORM(platform) for platform in json["platforms"]]
         self.startDate = datetime.fromisoformat(json["startDate"])
         self.endDate = self.startDate + self.duration.getTimeDelta()
+        
+        PlatformData.setPlatformList(self.platforms)
         
     def __str__(self):
         return f"{self.appName} {self.appVersion} - {self.startDate}"

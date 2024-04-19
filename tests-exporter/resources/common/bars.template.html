@@ -1,0 +1,63 @@
+<div id = "summary" class="h-1/2 min-h-80 bg-base-100 rounded-lg m-2 shadow-lg bg-opacity-60 backdrop-blur-md">
+    <h1 class="text-left p-5 text-2xl absolute font-bold po">Summary</h1>
+    <div id="summaryPie_{{uid}}" class="h-1/2 min-h-80"></div>
+    <script type="text/javascript">
+        var trace_passed = {
+            x: {{passed}},
+            y: {{platforms}},
+            name: 'Passed',
+            orientation: 'h',
+            marker: {
+                color: '#009900',
+                width: 1
+            },
+            type: 'bar'
+        };
+
+        var trace_failed = {
+            x: {{failed}},
+            y: {{platforms}},
+            name: 'Failed',
+            orientation: 'h',
+            marker: {
+                color: '#BB0000',
+                width: 1
+            },
+            type: 'bar'
+        };
+
+        var trace_pending = {
+            x: {{pending}},
+            y: {{platforms}},
+            name: 'Pending',
+            orientation: 'h',
+            marker: {
+                color: '#CC9900',
+                width: 1
+            },
+            type: 'bar'
+        };
+
+        var trace_skipped = {
+            x: {{skipped}},
+            y: {{platforms}},
+            name: 'Skipped',
+            orientation: 'h',
+            marker: {
+                color: '#000099',
+                width: 1
+            },
+            type: 'bar'
+        };
+
+        var data = [trace_passed, trace_failed, trace_pending, trace_skipped];
+
+        var layout = {
+            barmode: 'stack',
+            paper_bgcolor: 'transparent',
+            font: {color: 'white'}
+        };
+        var config = {responsive: true}
+        Plotly.newPlot('summaryPie_{{uid}}', data, layout, config)
+    </script>
+</div>
