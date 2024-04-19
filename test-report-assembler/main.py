@@ -118,6 +118,15 @@ def mergeAllSuites(suites, platforms):
         output[key] = mergeSuites([suite[key] for suite in suites], platforms)
     return output
 
+def mergeFiles(files, platforms):
+    output = {}
+    assert len(files) == len(platforms)
+    for i in range(len(files)):
+        platform = platforms[i]
+        file = files[i]
+        output[platform] = file
+    return output
+
 def main(argv):
     if len(argv) < 2:
         print("Usage: python main.py <test reports dir>")
@@ -138,7 +147,8 @@ def main(argv):
     output = {
         "summary": mergeSummary([inputData["summary"] for inputData in inputDatas]),
         "suites": mergeAllSuites([inputData["suites"] for inputData in inputDatas], platforms),
-        "orphans": mergeOrphans([inputData["orphans"] for inputData in inputDatas], platforms)
+        "orphans": mergeOrphans([inputData["orphans"] for inputData in inputDatas], platforms),
+        "files": mergeFiles([inputData["files"] for inputData in inputDatas], platforms)
     }
     
     # write output to file
