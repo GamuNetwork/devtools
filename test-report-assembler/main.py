@@ -19,7 +19,6 @@ def getInputs(inputFolder):
     for dirpath, dirname, filename in os.walk(inputFolder):
         for file in filename:
             if file.endswith("report.json"):
-                print(dirpath, file)
                 inputFiles.append(os.path.join(dirpath, file))
     return inputFiles
 
@@ -160,7 +159,7 @@ def main(argv):
 
     inputDatas = []
     for inputfile in inputfiles:
-        with open(os.path.join(argv[1], inputfile), "r") as f:
+        with open(inputfile, "r") as f:
             print(f"Reading {inputfile}")
             inputDatas.append(loads(f.read()))
 
