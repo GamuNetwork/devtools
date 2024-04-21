@@ -20,17 +20,17 @@ def parse_report(file) -> tuple[Summary, list[Suite], Suite]:
     try:
         data = loads(data)
     except Exception as e:
-        print(f"Error parsing JSON5: {e}")
+        error(f"Error parsing JSON5: {e}")
         sys.exit(1)
         
     # data should be a dictionary with at least one key "results", which is another dictionary
     
     if not isinstance(data, dict):
-        print("Invalid JSON5 format")
+        error("Invalid JSON5 format")
         sys.exit(1)
         
     if "summary" not in data or "suites" not in data:
-        print("Invalid JSON5 format")
+        error("Invalid JSON5 format")
         sys.exit(1)
         
     summary = Summary(data["summary"])
@@ -135,6 +135,9 @@ def build_stack(stack : Stack):
     lastPos = stack.get_last_position()
     context = stack.get_context()
     
+    if lastPos is None:
+        return ""
+    
     lines = ""
     for lineNumber, line in context.items():
         lineNumber = int(lineNumber)
@@ -205,7 +208,7 @@ def build_suite_index(suite : Suite):
                                 content=content, 
                                 checked="checked" if platform == platforms[0] else "",
                                 uid=spec.id
-                            )  
+                            )
             tabsContent += tab_html
         
         spec_html = load_template("resources/suites/spec.template.html",
@@ -315,12 +318,12 @@ def build_spec_list_from_suites(suites : list[Suite]):
     
 def main(argv):
     if len(argv) < 2:
-        print("Usage: python main.py <report-file> [output-dir]")
+        error("Usage: python main.py <report-file> [output-dir]")
         sys.exit(1)
 
     file = argv[1]
     if not os.path.isfile(file):
-        print(f"File {file} not found")
+        error(f"File {file} not found")
         sys.exit(1)
         
     global OUTPUT_DIR
@@ -335,7 +338,7 @@ def main(argv):
     try:
         build_index(summary)
     except Exception as e:
-        print(f" - Error: {e}")
+        error(f" - Error: {e}")
     else:
         print(f" - Done")
     
@@ -345,7 +348,7 @@ def main(argv):
         try:
             build_suite_index(suite)
         except Exception as e:
-            print(f" - Error: {e}")
+            error(f" - Error: {e}")
             raise e
         else:
             print(f" - Done")
@@ -354,7 +357,7 @@ def main(argv):
     try:
         build_suite_list(suites+[orphans])
     except Exception as e:
-        print(f" - Error: {e}")
+        error(f" - Error: {e}")
     else:
         print(f" - Done")
     
@@ -362,7 +365,7 @@ def main(argv):
     try:
         build_spec_list_from_suites(suites+[orphans])
     except Exception as e:
-        print(f" - Error: {e}")
+        error(f" - Error: {e}")
     else:
         print(f" - Done")
         

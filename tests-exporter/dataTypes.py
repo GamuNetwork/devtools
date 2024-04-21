@@ -22,7 +22,6 @@ class PlatformData:
     
     def __init__(self, **kwargs):
         if len(kwargs) != len(PlatformData.Platforms):
-            print(kwargs)
             raise ValueError("Invalid number of platforms; expected " + str(len(PlatformData.Platforms)) + " but got " + str(len(kwargs)))
     
         if not all(isinstance(value, type(next(iter(kwargs.values())))) for value in kwargs.values()):
@@ -105,7 +104,6 @@ class Suite:
 class Spec:
     def __init__(self, json : str|dict, parentSuite : Suite|None, files : dict[str,dict[str, dict[str, str]]]):
         if isinstance(json, str):
-            print(json)
             json = loads(json)
             
         self.id = json["id"]
@@ -190,6 +188,8 @@ class Stack:
         # read contextSize lines before and after the last position in the stack
         # return the list of lines in the file
         lastPosition = self.get_last_position()
+        if lastPosition is None:
+            return None
         return self.files[lastPosition.path]
         
         
@@ -199,6 +199,7 @@ class Stack:
         while contextPositionIndex >= 0 and self.stack[contextPositionIndex].path is None:
             contextPositionIndex -= 1
         if contextPositionIndex < 0:
+            # raise ValueError("No position in the stack has a path")
             return None
         return self.stack[contextPositionIndex]
 

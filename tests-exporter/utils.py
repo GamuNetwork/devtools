@@ -7,6 +7,10 @@ from json5 import dumps
 import shutil
 
 
+def error(message : str):
+    print(f"\033[91m{message}\033[0m")
+
+
 def clearFolder(folder):
     """
     Clear the contents of a folder or create it if it doesn't exist
