@@ -12,6 +12,15 @@ def extractPlatform(data):
     return data['summary']['os']
 
 
+def getInputs(inputFolder):
+    inputFiles = []
+    for dirpath, dirname, filename in os.walk(inputFolder):
+        for file in filename:
+            if file.endswith(".json"):
+                inputFiles.append(os.path.join(dirpath, file))
+    return inputFiles
+
+
 def mergeSummary(summaries):
     print("Merging summaries")
     output = {}
@@ -134,15 +143,18 @@ def main(argv):
     if len(argv) < 2:
         print("Usage: python main.py <test reports dir> [output file]")
         return
-
+    
     outputfile = "output.json"
     if len(argv) == 3:
         outputfile = argv[2]
-
-    inputfiles = [f for f in os.listdir(argv[1]) if os.path.isfile(os.path.join(argv[1], f)) and f.endswith(".json") and f != "output.json"]
+    
+    inputfiles = getInputs(argv[1])
+    if outputfile in inputfiles:
+        inputfiles.remove(outputfile)
     if len(inputfiles) == 0:
         print("No input files found")
         return
+
     inputDatas = []
     for inputfile in inputfiles:
         with open(os.path.join(argv[1], inputfile), "r") as f:
