@@ -7,6 +7,10 @@ from json5 import dumps
 import shutil
 
 
+#this file parent folder
+ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
 def error(message : str):
     print(f"\033[91m{message}\033[0m")
 
@@ -21,7 +25,7 @@ def clearFolder(folder):
     os.makedirs(folder)
 
 def load_template(file, **kwargs):
-    with open(file, "r") as f:
+    with open(ROOT+"/"+file, "r") as f:
         template = f.read() #type: str
     for key, value in kwargs.items():
         template = template.replace("{{" + key + "}}", str(value))
