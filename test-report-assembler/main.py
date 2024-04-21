@@ -2,6 +2,9 @@ from json5 import loads, dumps
 import os
 from datetime import datetime
 
+def fileName(path):
+    return os.path.basename(path)
+
 def allEqual(elements : list):
     return all(element == elements[0] for element in elements)
 
@@ -87,7 +90,7 @@ def mergeSuites(suites, platforms): # suites is the list of the same suite from 
     output["description"] = suites[0]["description"]
     output["fullName"] = suites[0]["fullName"]
     output["parentSuiteId"] = suites[0]["parentSuiteId"]
-    output["filename"] = suites[0]["filename"]
+    output["filename"] = fileName(suites[0]["filename"])
     
     # merge specs
     output["specs"] = {}
