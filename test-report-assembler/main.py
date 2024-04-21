@@ -11,12 +11,15 @@ def allEqual(elements : list):
 def extractPlatform(data):
     return data['summary']['os']
 
+def error(message : str):
+    print(f"\033[91m{message}\033[0m")
 
 def getInputs(inputFolder):
     inputFiles = []
     for dirpath, dirname, filename in os.walk(inputFolder):
         for file in filename:
-            if file.endswith(".json"):
+            if file.endswith("report.json"):
+                print(dirpath, file)
                 inputFiles.append(os.path.join(dirpath, file))
     return inputFiles
 
@@ -161,7 +164,12 @@ def main(argv):
             print(f"Reading {inputfile}")
             inputDatas.append(loads(f.read()))
 
-    platforms = [extractPlatform(inputData) for inputData in inputDatas]
+    platforms = []
+    for inputData in inputDatas:
+        try:
+            platforms.append(extractPlatform(inputData))
+        except KeyError:
+            error(f"Error: {inputData} is not a valid test report, ignoring it")
 
     output = {
         "summary": mergeSummary([inputData["summary"] for inputData in inputDatas]),
