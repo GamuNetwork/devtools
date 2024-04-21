@@ -36,5 +36,5 @@ runs:
   # run the script
     - name: Run script
       id: run
-      run: python main.py ${{ inputs.test-results-path }} ${{ inputs.output-folder }}
+      run: python $GITHUB_ACTION_PATH/main.py ${{ inputs.test-results-path }} ${{ inputs.output-folder }}
       shell: bash
