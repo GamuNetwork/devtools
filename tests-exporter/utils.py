@@ -47,14 +47,11 @@ def getIcon(string : str):
             return string
         
         
-def write_file_wrapper(output_dir) -> Callable[[str, str], None]: #used to pass the output directory to the function, so that it doesn't have to be passed every time
-    def write_file(file, content):
-        file = os.path.join(output_dir, file)
-        if not os.path.exists(os.path.dirname(file)):
-            os.makedirs(os.path.dirname(file))
-        with open(file, "w") as f:
-            f.write(content)
-    return write_file
+def write_file(file, content):
+    if not os.path.exists(os.path.dirname(file)):
+        os.makedirs(os.path.dirname(file))
+    with open(file, "w") as f:
+        f.write(content)
 
 def getColorClass(status : Status) -> str:
     match status:

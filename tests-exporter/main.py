@@ -7,7 +7,6 @@ from utils import *
 from typing import Callable
 
 OUTPUT_DIR = "reports"
-write_file = write_file_wrapper(OUTPUT_DIR)
 
 UTC = timezone(timedelta(hours=0)) #UTC
 
@@ -129,7 +128,7 @@ def build_index(summary : Summary):
     mainPage = load_template("resources/common/main.template.html", content=mainPageContent, header=header, footer=footer)
 
     #export the template to a file
-    write_file("index.html", mainPage)
+    write_file(OUTPUT_DIR+"/index.html", mainPage)
 
 def build_stack(stack : Stack):
     lastPos = stack.get_last_position()
@@ -235,7 +234,7 @@ def build_suite_index(suite : Suite):
     suitePage = load_template("resources/common/main.template.html", content=suitePage, header=header, footer=footer)
 
     #export the template to a file
-    write_file(f"suites/{suite.id}.html", suitePage)
+    write_file(OUTPUT_DIR+f"/suites/{suite.id}.html", suitePage)
     
 def build_suite_list(suites : list[Suite]):
     suiteList = ""
@@ -277,7 +276,7 @@ def build_suite_list(suites : list[Suite]):
     suiteListPage = load_template("resources/common/main.template.html", content=suiteListPage, header=header, footer=footer)
 
     #export the template to a file
-    write_file("suites/index.html", suiteListPage)
+    write_file(OUTPUT_DIR+"/suites/index.html", suiteListPage)
     
 def build_spec_inline(spec : Spec):
     spec_html = load_template("resources/specslist/spec.template.html",
@@ -303,7 +302,7 @@ def build_spec_list(specs : list[Spec]):
     specListPage = load_template("resources/common/main.template.html", content=specListPage, header=header, footer=footer)
 
     #export the template to a file
-    write_file("specs/index.html", specListPage)
+    write_file(OUTPUT_DIR+"/specs/index.html", specListPage)
     
 def build_spec_list_from_suites(suites : list[Suite]):
     specs = []
