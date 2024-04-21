@@ -119,7 +119,7 @@ def build_index(summary : Summary):
                             details=details_html
                         )
     
-    header = load_template("resources/common/header.template.html")
+    header = load_template("resources/common/header.template.html", pathToRoot = ".")
     footer = load_template("resources/common/footer.template.html",
                             datetime=datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S %Z")
                     )
@@ -227,7 +227,7 @@ def build_suite_index(suite : Suite):
                             specList=specs
                         )
     
-    header = load_template("resources/common/header.template.html")
+    header = load_template("resources/common/header.template.html", pathToRoot="..")
     footer = load_template("resources/common/footer.template.html")
     
     #load the main template
@@ -262,13 +262,14 @@ def build_suite_list(suites : list[Suite]):
                                 fileName=suite.filename,
                                 duration=build_durations_list(suite.duration),
                                 bars = bars,
-                                details=f"/suites/{suite.id}.html"
+                                details=f"suites/{suite.id}.html",
+                                pathToRoot=".."
                             )
         suiteList += suite_html
     
     suiteListPage = load_template("resources/suiteslist/page.template.html", suiteList=suiteList)
     
-    header = load_template("resources/common/header.template.html")
+    header = load_template("resources/common/header.template.html", pathToRoot="..")
     footer = load_template("resources/common/footer.template.html",
                         datetime=datetime.now().strftime("%Y-%m-%d %H:%M:%S %Z")
                     )
@@ -283,7 +284,8 @@ def build_spec_inline(spec : Spec):
                             suite=spec.parentSuite.fullName if spec.parentSuite.id != "orphans" else "",
                             name=spec.fullName,
                             statusBadge=build_status_badge(getStatusTotal(spec.status)),
-                            details="/suites/" + spec.parentSuite.id + ".html#" + spec.id
+                            details="suites/" + spec.parentSuite.id + ".html#" + spec.id,
+                            pathToRoot=".."
                         )
     return spec_html
     
@@ -294,7 +296,7 @@ def build_spec_list(specs : list[Spec]):
         
     specListPage = load_template("resources/specslist/page.template.html", specList=specList)
     
-    header = load_template("resources/common/header.template.html")
+    header = load_template("resources/common/header.template.html", pathToRoot="..")
     footer = load_template("resources/common/footer.template.html",
                         datetime=datetime.now().strftime("%Y-%m-%d %H:%M:%S %Z")
                     )
