@@ -1,0 +1,3 @@
+# requirements.txt
+
+json5==0.9.25

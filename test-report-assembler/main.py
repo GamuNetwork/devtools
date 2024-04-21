@@ -132,8 +132,12 @@ def mergeFiles(files, platforms):
 
 def main(argv):
     if len(argv) < 2:
-        print("Usage: python main.py <test reports dir>")
+        print("Usage: python main.py <test reports dir> [output file]")
         return
+
+    outputfile = "output.json"
+    if len(argv) == 3:
+        outputfile = argv[2]
 
     inputfiles = [f for f in os.listdir(argv[1]) if os.path.isfile(os.path.join(argv[1], f)) and f.endswith(".json") and f != "output.json"]
     if len(inputfiles) == 0:
@@ -155,7 +159,7 @@ def main(argv):
     }
     
     # write output to file
-    with open("output.json", "w") as f:
+    with open(outputfile, "w") as f:
         f.write(dumps(output, indent=4, quote_keys=True, trailing_commas=False))
 
 
