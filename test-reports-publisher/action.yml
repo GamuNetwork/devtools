@@ -1,0 +1,47 @@
+name: 'Test Report Publisher'
+description: 'Publish test reports to a repository'
+
+inputs:
+  test-reports-path:
+    description: 'Path to the test reports'
+    required: true
+    default: 'test-reports'
+
+  repository:
+    description: 'The repository to publish the test reports to'
+    required: true
+  
+  branch:
+    description: 'The branch to publish the test reports to'
+    required: false
+    default: 'main'
+
+  gh-token:
+    description: 'GitHub token'
+    required: true
+
+env:
+  GH_TOKEN: ${{ inputs.gh-token }}
+
+runs:
+  using: "composite"
+  steps:
+    # setup python 3.12 environment, install dependencies
+    - name: Setup Python 3.12
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.12'
+
+    - name: Upgrade pip
+      run: python -m pip install --upgrade pip
+      shell: bash
+
+    - name: Install dependencies
+      run: pip install -r $GITHUB_ACTION_PATH/requirements.txt
+      shell: bash
+
+  # run the script
+    - name: Run script
+      id: run
+      run: python $GITHUB_ACTION_PATH/main.py ${{ inputs.test-results-path }} ${{ inputs.output-folder }}
+      shell: bash
