@@ -20,9 +20,6 @@ inputs:
     description: 'GitHub token'
     required: true
 
-env:
-  GH_TOKEN: ${{ inputs.gh-token }}
-
 runs:
   using: "composite"
   steps:
@@ -40,8 +37,8 @@ runs:
       run: pip install -r $GITHUB_ACTION_PATH/requirements.txt
       shell: bash
 
-  # run the script
+  # run the script to publish the test reports
     - name: Run script
       id: run
-      run: python $GITHUB_ACTION_PATH/main.py ${{ inputs.test-results-path }} ${{ inputs.output-folder }}
+      run: python $GITHUB_ACTION_PATH/main.py ${{ gh-token }} ${{ inputs.repository }} ${{ inputs.branch}} ${{ inputs.test-reports-path }}
       shell: bash
