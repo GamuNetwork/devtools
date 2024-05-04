@@ -12,6 +12,14 @@ from api import API
 
 @chrono
 def main(token, repository, branch, test_reports_path, simulate=False, clean=True):
+    
+    try:
+        token = os.environ[token]
+        debug(f"GITHUB_TOKEN found in environment variables")
+    except KeyError:
+        critical(f"Environment variable {token} not found")
+        return
+    
     Printer.add_sensitive(token)
     if simulate:
         message("Simulation mode is enabled, no changes will be made to the distant repository", COLORS.YELLOW)
@@ -33,7 +41,7 @@ def main(token, repository, branch, test_reports_path, simulate=False, clean=Tru
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Push test reports to repository')
-    parser.add_argument('token', help='GitHub api token')
+    parser.add_argument('tokenVarName', help='GitHub api token environment variable name')
     parser.add_argument('repository', help='Repository name')
     parser.add_argument('branch', help='Branch name')
     parser.add_argument('test_reports_path', help='Test reports path')
@@ -55,4 +63,5 @@ if __name__ == '__main__':
     elif args.quiet:
         Printer().set_level(Printer.LEVELS.ERROR)
     
-    main(args.token, args.repository, args.branch, args.test_reports_path, args.simulate, not args.no_clean)
+    
+    main(args.tokenVarName, args.repository, args.branch, args.test_reports_path, args.simulate, not args.no_clean)
