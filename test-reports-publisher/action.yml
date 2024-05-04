@@ -40,5 +40,5 @@ runs:
   # run the script to publish the test reports
     - name: Run script
       id: run
-      run: python $GITHUB_ACTION_PATH/main.py ${{ inputs.gh-token }} ${{ inputs.repository }} ${{ inputs.branch}} ${{ inputs.test-reports-path }}
+      run: python $GITHUB_ACTION_PATH/main.py ${{ inputs.gh-token }} ${{ inputs.repository }} ${{ inputs.branch}} ${{ inputs.test-reports-path }} -d
       shell: bash
