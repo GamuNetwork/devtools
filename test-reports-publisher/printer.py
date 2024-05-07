@@ -96,6 +96,11 @@ class Printer:
                 case _:
                     return COLORS.RESET
     
+    class SENSITIVE_LEVELS(Enum):
+        HIDE = 0
+        SHOW = 1
+        ENCODE = 2
+    
     __instance = None
     
     def __new__(cls):
@@ -103,7 +108,7 @@ class Printer:
             cls.__instance = super(Printer, cls).__new__(cls)
             cls.__instance.level = cls.LEVELS.INFO
             cls.__instance.target = stdout
-            cls.__instance.show_sensitive_data = False
+            cls.__instance.show_sensitive_data = cls.SENSITIVE_LEVELS.HIDE
             cls.__instance.sensitive_data = [] # list of sensitive data that should not be printed
         return cls.__instance
     
@@ -113,10 +118,12 @@ class Printer:
     def __set_target(self, target):
         self.target = target
         
-    def __show_sensitive(self, sensitive : bool):
-        self.show_sensitive_data = sensitive
-        if sensitive:
+    def __show_sensitive(self, mode : SENSITIVE_LEVELS):
+        self.show_sensitive_data = mode
+        if mode == self.SENSITIVE_LEVELS.SHOW:
             Printer().__message("Sensitive mode was disable, this file may contain sensitive information, please do not share it with anyone", COLORS.YELLOW)
+        elif mode == self.SENSITIVE_LEVELS.ENCODE:
+            Printer().__message("Sensitive mode was enable, this file may contain encoded sensitive information, please do not share it with anyone", COLORS.YELLOW)
         
     def __add_sensitive(self, sensitive : Any):
         self.sensitive_data.append(sensitive)
@@ -129,68 +136,70 @@ class Printer:
     def __get_time():
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    def __build_message(self, level : LEVELS, message : str):
+    def __build_message(self, level : LEVELS, message : str, dateColor : COLORS = COLORS.BLUE):
         if self.target == stderr or self.target == stdout:
-            return f"[{str(COLORS.BLUE)}{self.__get_time()}{str(COLORS.RESET)}] [{level.color()}{level}{str(COLORS.RESET)}] {self.__parse_message(message)}"
+            return f"[{str(dateColor)}{self.__get_time()}{str(COLORS.RESET)}] [{level.color()}{level}{str(COLORS.RESET)}] {self.__parse_message(message)}"
         
     def __hide_sensitive(self, message : str):
-        for sensitive in self.sensitive_data:
-            message = message.replace(str(sensitive), '*'*len(str(sensitive)))
+        if self.show_sensitive_data == self.SENSITIVE_LEVELS.HIDE:
+            for sensitive in self.sensitive_data:
+                message = message.replace(str(sensitive), '*'*len(str(sensitive)))
+        elif self.show_sensitive_data == self.SENSITIVE_LEVELS.ENCODE:
+            for sensitive in self.sensitive_data:
+                message = message.replace(str(sensitive), str(sensitive).encode().hex()) #transform "sensitive" into "73656e736974697665"
         return message
     
-    def __print(self, level : LEVELS, message : Any):
+    def __print(self, level : LEVELS, message : Any, dateColor : COLORS = COLORS.BLUE):
         message = str(message)
-        if not self.show_sensitive_data:
-            message = self.__hide_sensitive(message)
+        message = self.__hide_sensitive(message)
         if self.level <= level:
-            print(self.__build_message(level, message), file=self.target)
+            print(self.__build_message(level, message, dateColor), file=self.target)
             
-    def __deep_debug(self, message : Any):
-        self.__print(self.LEVELS.DEEP_DEBUG, message)
+    def __deep_debug(self, message : Any, dateColor : COLORS = COLORS.BLUE):
+        self.__print(self.LEVELS.DEEP_DEBUG, message, dateColor)
             
-    def __debug(self, message : Any):
-        self.__print(self.LEVELS.DEBUG, message)
+    def __debug(self, message : Any, dateColor : COLORS = COLORS.BLUE):
+        self.__print(self.LEVELS.DEBUG, message, dateColor)
     
-    def __info(self, message : Any):
-        self.__print(self.LEVELS.INFO, message)
+    def __info(self, message : Any, dateColor : COLORS = COLORS.GREEN):
+        self.__print(self.LEVELS.INFO, message, dateColor)
         
-    def __warning(self, message : Any):
-        self.__print(self.LEVELS.WARNING, message)
+    def __warning(self, message : Any, dateColor : COLORS = COLORS.YELLOW):
+        self.__print(self.LEVELS.WARNING, message, dateColor)
         
-    def __error(self, message : Any):
-        self.__print(self.LEVELS.ERROR, message)
+    def __error(self, message : Any, dateColor : COLORS = COLORS.RED):
+        self.__print(self.LEVELS.ERROR, message, dateColor)
         
-    def __critical(self, message : Any):
-        self.__print(self.LEVELS.CRITICAL, message)
+    def __critical(self, message : Any, dateColor : COLORS = COLORS.DARK_RED):
+        self.__print(self.LEVELS.CRITICAL, message, dateColor)
         
     def __message(self, message : Any, color : COLORS = COLORS.NONE):
-        if not self.show_sensitive_data:
-            message = self.__hide_sensitive(message)
+        message = self.__hide_sensitive(message)
         print(color + message + COLORS.RESET, file=self.target)
 
     @staticmethod
-    def deep_debug(message : Any):
-        Printer().__deep_debug(message)
+    def deep_debug(message : Any, dateColor : COLORS = COLORS.BLUE):
+        Printer().__deep_debug(message, dateColor)
 
     @staticmethod
-    def debug(message : Any):
-        Printer().__debug(message)
+    def debug(message : Any, dateColor : COLORS = COLORS.BLUE):
+        Printer().__debug(message, dateColor)
     
     @staticmethod
-    def info(message : Any):
-        Printer().__info(message)
+    def info(message : Any, dateColor : COLORS = COLORS.BLUE):
+        Printer().__info(message, dateColor)
     
     @staticmethod
-    def warning(message : Any):
-        Printer().__warning(message)
+    def warning(message : Any, dateColor : COLORS = COLORS.BLUE):
+        Printer().__warning(message, dateColor)
         
     @staticmethod
-    def error(message : Any):
-        Printer().__error(message)
+    def error(message : Any, dateColor : COLORS = COLORS.BLUE):
+        Printer().__error(message, dateColor)
         
     @staticmethod
-    def critical(message : Any):
-        Printer().__critical(message)
+    def critical(message : Any, dateColor : COLORS = COLORS.BLUE):
+        Printer().__critical(message, dateColor)
         
     @staticmethod
     def message(message : Any, color : COLORS = COLORS.NONE):
@@ -205,30 +214,30 @@ class Printer:
         Printer().__set_target(target)
         
     @staticmethod
-    def show_sensitive(sensitive : bool):
-        Printer().__show_sensitive(sensitive)
+    def show_sensitive(mode : SENSITIVE_LEVELS):
+        Printer().__show_sensitive(mode)
         
     @staticmethod
     def add_sensitive(sensitive : Any):
         Printer().__add_sensitive(sensitive)
         
-def deep_debug(message : Any):
-    Printer.deep_debug(message)
+def deep_debug(message : Any, dateColor : COLORS = COLORS.BLUE):
+    Printer.deep_debug(message, dateColor)
         
-def debug(message : Any):
-    Printer.debug(message)
+def debug(message : Any, dateColor : COLORS = COLORS.BLUE):
+    Printer.debug(message, dateColor)
 
-def info(message : Any):
-    Printer.info(message)
+def info(message : Any, dateColor : COLORS = COLORS.BLUE):
+    Printer.info(message, dateColor)
     
-def warning(message : Any):
-    Printer.warning(message)
+def warning(message : Any, dateColor : COLORS = COLORS.BLUE):
+    Printer.warning(message, dateColor)
     
-def error(message : Any):
-    Printer.error(message)
+def error(message : Any, dateColor : COLORS = COLORS.BLUE):
+    Printer.error(message, dateColor)
 
-def critical(message : Any):
-    Printer.critical(message)
+def critical(message : Any, dateColor : COLORS = COLORS.BLUE):
+    Printer.critical(message, dateColor)
     
 def message(message : Any, color : COLORS = COLORS.NONE):
     """

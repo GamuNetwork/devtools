@@ -12,6 +12,8 @@ from api import API
 
 @chrono
 def main(token, repository, branch, test_reports_path, simulate=False, clean=True):
+    if simulate:
+        message("Simulation mode is enabled, no changes will be made to the distant repository", COLORS.YELLOW)
     
     try:
         token = os.environ[token]
@@ -19,10 +21,11 @@ def main(token, repository, branch, test_reports_path, simulate=False, clean=Tru
     except KeyError:
         critical(f"Environment variable {token} not found")
         return
-    
     Printer.add_sensitive(token)
-    if simulate:
-        message("Simulation mode is enabled, no changes will be made to the distant repository", COLORS.YELLOW)
+
+    repository = repository.split('/')[-1]
+    branch = branch.split('/')[-1]
+    
     try:
         with API(token, 'gamunetwork/gamunetwork.github.io', simulate=simulate) as (api, path):
             api.auto_clean = clean
@@ -31,8 +34,14 @@ def main(token, repository, branch, test_reports_path, simulate=False, clean=Tru
                 shutil.rmtree(reports_path)
             os.makedirs(reports_path, exist_ok=True)
             
-            shutil.copytree(test_reports_path, reports_path, dirs_exist_ok=True)
-            info(f"Test reports copied to {reports_path}")
+            try:
+                shutil.copytree(test_reports_path, reports_path, dirs_exist_ok=True)
+            except FileExistsError:
+                info(f"Test reports already exist in {reports_path}, overwriting them")
+            except FileNotFoundError:
+                warning(f"Test reports not found in {test_reports_path}")
+            else:
+                info(f"Test reports copied to {reports_path}")
             
             api.push(f"Updated test reports for {repository}/{branch}")
     except Exception as e:
@@ -48,11 +57,16 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--simulate', action='store_true', help='simulate the process without pushing to repository')
     parser.add_argument('-nc', '--no-clean', action='store_true', help='do not delete the cloned repository after the process is done')
     
-    debug_group = parser.add_argument_group('Debugging options (use only one of them)')
-    debug_group = debug_group.add_mutually_exclusive_group()
-    debug_group.add_argument('-d', '--debug', action='store_true', help='enable debug mode (show debug messages)')
-    debug_group.add_argument('-dd', '--deep-debug', action='store_true', help='enable deep debug mode (show deep debug messages)')
-    debug_group.add_argument('-q', '--quiet', action='store_true', help='enable quiet mode (show only error messages)')
+    debug_group = parser.add_argument_group('Debugging options')
+    
+    debug_group_mode = debug_group.add_mutually_exclusive_group()
+    debug_group_mode.add_argument('-d', '--debug', action='store_true', help='enable debug mode (show debug messages)')
+    debug_group_mode.add_argument('-dd', '--deep-debug', action='store_true', help='enable deep debug mode (show deep debug messages)')
+    debug_group_mode.add_argument('-q', '--quiet', action='store_true', help='enable quiet mode (show only error messages)')
+    
+    debug_group_sensitive = debug_group.add_mutually_exclusive_group()
+    debug_group_sensitive.add_argument('--show-sensitive', action='store_true', help='allow showing sensitive information in logs')
+    debug_group_sensitive.add_argument('--show-encoded', action='store_true', help='show encoded sensitive information in logs')
 
     args = parser.parse_args()
     
@@ -63,5 +77,9 @@ if __name__ == '__main__':
     elif args.quiet:
         Printer().set_level(Printer.LEVELS.ERROR)
     
+    if args.show_sensitive:
+        Printer().show_sensitive(Printer.SENSITIVE_LEVELS.SHOW)
+    elif args.show_encoded:
+        Printer().show_sensitive(Printer.SENSITIVE_LEVELS.ENCODE)
     
     main(args.tokenVarName, args.repository, args.branch, args.test_reports_path, args.simulate, not args.no_clean)

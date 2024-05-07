@@ -1,12 +1,14 @@
 import requests
 import os
 import base64
+from datetime import datetime
 
-from printer import Printer, deep_debug, debug, info, warning, error, critical, deep_debug_func, debug_func
+from printer import Printer, deep_debug, debug, info, warning, error, critical, deep_debug_func, debug_func, COLORS
 
 type Commit_sha = str
 type Tree_sha = str
 type Blob_sha = str
+
 
 class RequestError(Exception):
     def __init__(self, code, message):
@@ -78,6 +80,8 @@ class API:
         self.repository = repository
         self.branch = branch
         
+        self.fileList = {} # type: dict[str, datetime] # path : edit datetime
+        
         debug(f'Repository URL: {self.repository_url}')
         
         cwd = os.getcwd()
@@ -147,7 +151,21 @@ class API:
                 self.__download_dir(item['url'], f'{self.path()}/{item["path"]}')
             
         info('Repository cloned')
+        
+        self.fileList = self.__scan_files()
+
         return True
+    
+    def __scan_files(self) -> dict[str, datetime]:
+        debug(f'Scanning files in {self.path()} ...')
+        data = {}
+        for root, dirs, files in os.walk(self.path()):
+            for file in files:
+                path = f'{root}/{file}'
+                debug(f"found file {path}", COLORS.YELLOW)
+                data[path] = datetime.fromtimestamp(os.path.getmtime(path))
+        debug(f"{len(data)} files found")
+        return data
     
     def __create_blob(self, filepath) -> Blob_sha:
         deep_debug(f'Creating blob for {filepath} ...')
@@ -206,15 +224,27 @@ class API:
         self.__post(url, {'sha': commit_sha})
 
     def push(self, message):
-        info(f"Pushing changes to {self.repository} in {self.branch} ...")
+        info("Looking for changes ...")
+        newFileList = self.__scan_files()
+        changes = []
+        for path in newFileList:
+            if path not in self.fileList or newFileList[path] != self.fileList[path]:
+                changes.append(path)
+        
+        
+        if len(changes) == 0:
+            info("No changes found; doing nothing")
+            return
+        
+        info(f"Pushing {len(changes)} changes to {self.repository} in {self.branch} ...")
         tree = self.__build_fileTree()
 
         debug(f"Committing changes in {self.repository} ...")
         
-        tree_sha = self.__create_tree(tree)
         if self.simulate:
             debug('Simulation mode enabled; skipping commit creation and ref update on GitHub')
         else:
+            tree_sha = self.__create_tree(tree)
             commit_sha = self.__create_commit(message, tree_sha)
             self.__update_ref(commit_sha)
         
