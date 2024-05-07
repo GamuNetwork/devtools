@@ -17,10 +17,13 @@ def main(token, repository, branch, test_reports_path, simulate=False, clean=Tru
     
     try:
         token = os.environ[token]
-        debug(f"GITHUB_TOKEN found in environment variables")
+        if not token:
+            raise KeyError
     except KeyError:
         critical(f"Environment variable {token} not found")
         return
+    else:
+        debug(f"GITHUB_TOKEN found in environment variables")
     Printer.add_sensitive(token)
 
     repository = repository.split('/')[-1]
