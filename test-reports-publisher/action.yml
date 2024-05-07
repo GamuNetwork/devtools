@@ -16,6 +16,10 @@ inputs:
     required: false
     default: 'main'
 
+  GH_TOKEN:
+    description: 'GitHub token'
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -39,4 +43,4 @@ runs:
       run: python $GITHUB_ACTION_PATH/main.py GH_TOKEN ${{ inputs.repository }} ${{ inputs.branch}} ${{ inputs.test-reports-path }} -d --show-encoded
       shell: bash
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ inputs.GH_TOKEN }}
