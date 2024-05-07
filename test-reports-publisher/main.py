@@ -11,19 +11,19 @@ from printer import Printer, deep_debug, debug, info, warning, error, critical, 
 from api import API
 
 @chrono
-def main(token, repository, branch, test_reports_path, simulate=False, clean=True):
+def main(key, repository, branch, test_reports_path, simulate=False, clean=True):
     if simulate:
         message("Simulation mode is enabled, no changes will be made to the distant repository", COLORS.YELLOW)
     
     try:
-        token = os.environ[token]
+        token = os.environ[key]
         if not token:
             raise KeyError
     except KeyError:
-        critical(f"Environment variable {token} not found")
-        return
+        critical(f"Environment variable {key} not found")
+        sys.exit(1)
     else:
-        debug(f"GITHUB_TOKEN found in environment variables")
+        debug(f"{key} found in environment variables")
     Printer.add_sensitive(token)
 
     repository = repository.split('/')[-1]
