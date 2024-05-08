@@ -16,7 +16,8 @@ inputs:
     required: false
     default: 'main'
 
-  gh_token:
+env:
+  GH_TOKEN:
     description: 'GitHub token'
     required: true
 
@@ -42,5 +43,3 @@ runs:
       id: run
       run: python $GITHUB_ACTION_PATH/main.py GH_TOKEN ${{ inputs.repository }} ${{ inputs.branch}} ${{ inputs.test-reports-path }} -d --show-encoded
       shell: bash
-      env:
-        GH_TOKEN: ${{ inputs.gh_token }}
