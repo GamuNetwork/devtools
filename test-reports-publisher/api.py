@@ -162,7 +162,6 @@ class API:
         for root, dirs, files in os.walk(self.path()):
             for file in files:
                 path = f'{root}/{file}'
-                debug(f"found file {path}", COLORS.YELLOW)
                 data[path] = datetime.fromtimestamp(os.path.getmtime(path))
         debug(f"{len(data)} files found")
         return data

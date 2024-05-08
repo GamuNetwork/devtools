@@ -11,19 +11,11 @@ from printer import Printer, deep_debug, debug, info, warning, error, critical, 
 from api import API
 
 @chrono
-def main(key, repository, branch, test_reports_path, simulate=False, clean=True):
+def main(token, repository, branch, test_reports_path, simulate=False, clean=True):
     if simulate:
         message("Simulation mode is enabled, no changes will be made to the distant repository", COLORS.YELLOW)
+    token = bytes.fromhex(token).decode()
     
-    try:
-        token = os.environ[key]
-        if not token:
-            raise KeyError
-    except KeyError:
-        critical(f"Environment variable {key} not found")
-        sys.exit(1)
-    else:
-        debug(f"{key} found in environment variables")
     Printer.add_sensitive(token)
 
     repository = repository.split('/')[-1]
@@ -53,7 +45,7 @@ def main(key, repository, branch, test_reports_path, simulate=False, clean=True)
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Push test reports to repository')
-    parser.add_argument('tokenVarName', help='GitHub api token environment variable name')
+    parser.add_argument('token', help='GitHub api token')
     parser.add_argument('repository', help='Repository name')
     parser.add_argument('branch', help='Branch name')
     parser.add_argument('test_reports_path', help='Test reports path')
@@ -85,4 +77,4 @@ if __name__ == '__main__':
     elif args.show_encoded:
         Printer().show_sensitive(Printer.SENSITIVE_LEVELS.ENCODE)
     
-    main(args.tokenVarName, args.repository, args.branch, args.test_reports_path, args.simulate, not args.no_clean)
+    main(args.token, args.repository, args.branch, args.test_reports_path, args.simulate, not args.no_clean)
