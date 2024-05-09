@@ -2,6 +2,7 @@
 
 dateutils==0.6.12
 json5==0.9.25
+gamu_logger @ https://github.com/GamuNetwork/logger/releases/download/0.1.1/gamu_logger-0.1.1-py3-none-any.whl#sha256=02f49168a75e7e5b6ef4295f52cacd29756ccdde4034949e849636f9e1b14573
 python-dateutil==2.9.0.post0
 pytz==2024.1
 six==1.16.0
