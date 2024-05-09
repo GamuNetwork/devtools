@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 import argparse
 
-from gamuLogger import info, warning, error, critical, debug, debug_func
+from gamuLogger import info, warning, error, critical, debug, debug_func, Printer, chrono
 
 
 def fileName(path):
@@ -136,6 +136,7 @@ def mergeAllSuites(suites, platforms):
     return output
 
 def mergeFiles(files, platforms):
+    info("Merging files...")
     output = {}
     assert len(files) == len(platforms)
     for i in range(len(files)):
@@ -144,16 +145,14 @@ def mergeFiles(files, platforms):
         output[platform] = file
     return output
 
-@debug_func
+@chrono
 def main(outputfile, inputFolder):
-
-    outputfile = "output.json" # default value
     
     inputfiles = getInputs(inputFolder)
     if outputfile in inputfiles:
         inputfiles.remove(outputfile)
     if len(inputfiles) == 0:
-        error("No input files found")
+        error(f"No input files found in {os.path.abspath(inputFolder)}")
         return
 
     inputDatas = []
@@ -181,8 +180,11 @@ def main(outputfile, inputFolder):
         return
     
     # write output to file
+    info(f"Writing output to {outputfile}")
     with open(outputfile, "w") as f:
         f.write(dumps(output, indent=4, quote_keys=True, trailing_commas=False))
+    
+    info("Merging completed successfully")
 
 
 if __name__ == '__main__':
@@ -190,4 +192,6 @@ if __name__ == '__main__':
     parser.add_argument("inputFolder", help="Folder containing the test reports")
     parser.add_argument("-o", "--output", help="Output file name", default="output.json")
     argv = parser.parse_args()
+    
     main(argv.output, argv.inputFolder)
+    
