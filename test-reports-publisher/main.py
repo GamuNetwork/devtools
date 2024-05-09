@@ -5,7 +5,7 @@ import sys
 import shutil
 import argparse
 
-from printer import Printer, deep_debug, debug, info, warning, error, critical, message, COLORS, chrono
+from gamuLogger import Printer, deep_debug, debug, info, warning, error, critical, message, COLORS, chrono
 
 
 from api import API

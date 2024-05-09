@@ -1,6 +1,10 @@
 from json5 import loads, dumps
 import os
 from datetime import datetime
+import argparse
+
+from gamuLogger import info, warning, error, critical, debug, debug_func
+
 
 def fileName(path):
     return os.path.basename(path)
@@ -11,20 +15,18 @@ def allEqual(elements : list):
 def extractPlatform(data):
     return data['summary']['os']
 
-def error(message : str):
-    print(f"\033[91m{message}\033[0m")
-
 def getInputs(inputFolder):
     inputFiles = []
     for dirpath, dirname, filename in os.walk(inputFolder):
         for file in filename:
             if file.endswith("report.json"):
+                debug(f"Adding {file} to input files")
                 inputFiles.append(os.path.join(dirpath, file))
     return inputFiles
 
 
 def mergeSummary(summaries):
-    print("Merging summaries")
+    info("Merging summaries...")
     output = {}
     output["appName"] = summaries[0]["appName"]
     output["appVersion"] = summaries[0]["appVersion"]
@@ -39,6 +41,7 @@ def mergeSummary(summaries):
     return output
 
 def mergeSpecs(specs, platforms):
+    debug("Merging specs...")
     if len(specs) != len(platforms):
         raise Exception("specs and platforms must have the same length")
     
@@ -67,7 +70,7 @@ def mergeSpecs(specs, platforms):
     return output
 
 def mergeOrphans(orphans, platforms):
-    print("Merging orphans")
+    info("Merging orphans...")
     
     output = {}
     
@@ -89,7 +92,7 @@ def mergeOrphans(orphans, platforms):
     return output
 
 def mergeSuites(suites, platforms): # suites is the list of the same suite from different platforms
-    print("Merging suites")
+    info("Merging suites...")
     
     if not len(suites) == len(platforms):
         raise Exception("suites and platforms must have the same length")
@@ -141,26 +144,22 @@ def mergeFiles(files, platforms):
         output[platform] = file
     return output
 
-def main(argv):
-    if len(argv) < 2:
-        print("Usage: python main.py <test reports dir> [output file]")
-        return
+@debug_func
+def main(outputfile, inputFolder):
+
+    outputfile = "output.json" # default value
     
-    outputfile = "output.json"
-    if len(argv) == 3:
-        outputfile = argv[2]
-    
-    inputfiles = getInputs(argv[1])
+    inputfiles = getInputs(inputFolder)
     if outputfile in inputfiles:
         inputfiles.remove(outputfile)
     if len(inputfiles) == 0:
-        print("No input files found")
+        error("No input files found")
         return
 
     inputDatas = []
     for inputfile in inputfiles:
         with open(inputfile, "r") as f:
-            print(f"Reading {inputfile}")
+            info(f"Reading {inputfile}")
             inputDatas.append(loads(f.read()))
 
     platforms = []
@@ -168,14 +167,18 @@ def main(argv):
         try:
             platforms.append(extractPlatform(inputData))
         except KeyError:
-            error(f"Error: {inputData} is not a valid test report, ignoring it")
+            warning(f"Error: {inputData} is not a valid test report, ignoring it")
 
-    output = {
-        "summary": mergeSummary([inputData["summary"] for inputData in inputDatas]),
-        "suites": mergeAllSuites([inputData["suites"] for inputData in inputDatas], platforms),
-        "orphans": mergeOrphans([inputData["orphans"] for inputData in inputDatas], platforms),
-        "files": mergeFiles([inputData["files"] for inputData in inputDatas], platforms)
-    }
+    try:
+        output = {
+            "summary": mergeSummary([inputData["summary"] for inputData in inputDatas]),
+            "suites": mergeAllSuites([inputData["suites"] for inputData in inputDatas], platforms),
+            "orphans": mergeOrphans([inputData["orphans"] for inputData in inputDatas], platforms),
+            "files": mergeFiles([inputData["files"] for inputData in inputDatas], platforms)
+        }
+    except Exception as e:
+        critical(e)
+        return
     
     # write output to file
     with open(outputfile, "w") as f:
@@ -183,5 +186,8 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    import sys
-    main(sys.argv)
+    parser = argparse.ArgumentParser(description="Merge multiple test reports into one")
+    parser.add_argument("inputFolder", help="Folder containing the test reports")
+    parser.add_argument("-o", "--output", help="Output file name", default="output.json")
+    argv = parser.parse_args()
+    main(argv.output, argv.inputFolder)

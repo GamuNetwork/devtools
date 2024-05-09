@@ -3,7 +3,7 @@ import os
 import base64
 from datetime import datetime
 
-from printer import Printer, deep_debug, debug, info, warning, error, critical, deep_debug_func, debug_func, COLORS
+from gamuLogger import Printer, deep_debug, debug, info, warning, error, critical, deep_debug_func, debug_func, COLORS
 
 type Commit_sha = str
 type Tree_sha = str

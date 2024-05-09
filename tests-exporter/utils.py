@@ -3,16 +3,14 @@ from typing import Callable
 from dataTypes import Suite, Summary, Spec, Status, Stack, PlatformData, PLATFORM, Status
 from json5 import dumps
 
+from gamuLogger import error, info, warning, debug, critical, debug_func
+
 #for file and folder operations
 import shutil
 
 
 #this file parent folder
 ROOT = os.path.dirname(os.path.abspath(__file__))
-
-
-def error(message : str):
-    print(f"\033[91m{message}\033[0m")
 
 
 def clearFolder(folder):
@@ -24,7 +22,9 @@ def clearFolder(folder):
         shutil.rmtree(folder)
     os.makedirs(folder)
 
+@debug_func
 def load_template(file, **kwargs):
+    info("Loading template: "+file)
     with open(ROOT+"/"+file, "r") as f:
         template = f.read() #type: str
     for key, value in kwargs.items():
@@ -44,6 +44,7 @@ def getIcon(string : str):
         case "skipped":
             return "forward"
         case _:
+            warning("No icon found for: "+string)
             return string
         
         

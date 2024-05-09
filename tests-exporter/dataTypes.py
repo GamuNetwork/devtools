@@ -1,7 +1,6 @@
 from enum import Enum
 from json5 import loads
 from datetime import datetime, timedelta
-import re
 
 class PLATFORM(Enum):
     MACOS = "macos"
@@ -256,23 +255,3 @@ class Duration:
     
     def getTimeDelta(self):
         return timedelta(milliseconds=self.milliseconds)
-    
-if __name__ == "__main__":
-    with open("report.json", "r") as f:
-        data = f.read()
-        
-    data = loads(data) #type: dict[str, dict]
-    
-    suites = [Suite(suite) for suite in data["suites"].values()]
-    for suite in suites:
-        print(suite)
-        for spec in suite.specs:
-            print(spec)
-            for expectation in spec.Expectations:
-                print(expectation)
-                print(expectation.stack)
-                print()
-            print()
-        print()
-    
-    print("Done")

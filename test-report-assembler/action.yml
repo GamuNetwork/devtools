@@ -31,5 +31,5 @@ runs:
 
     # run the script
     - name: 'Assemble test reports'
-      run: 'python $GITHUB_ACTION_PATH/main.py ${{ inputs.test_reports }} ${{ inputs.output_file }}'
+      run: 'python $GITHUB_ACTION_PATH/main.py ${{ inputs.test_reports }} --output ${{ inputs.output_file }}'
       shell: bash

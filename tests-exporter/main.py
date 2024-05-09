@@ -5,6 +5,8 @@ from datetime import datetime, timedelta, timezone
 from dataTypes import Suite, Summary, Spec, Status, Stack, PLATFORM, Duration, PlatformData
 from utils import *
 from typing import Callable
+import argparse
+from gamuLogger import error, info, warning, debug, critical
 
 OUTPUT_DIR = "reports"
 
@@ -315,62 +317,59 @@ def build_spec_list_from_suites(suites : list[Suite]):
     
     
     
-    
-    
-def main(argv):
-    if len(argv) < 2:
-        error("Usage: python main.py <report-file> [output-dir]")
-        sys.exit(1)
-
-    file = argv[1]
-    if not os.path.isfile(file):
-        error(f"File {file} not found")
-        sys.exit(1)
+def main(report_file, output_dir):
         
     global OUTPUT_DIR
-    if len(argv) > 2:
-        OUTPUT_DIR = argv[2]
+    OUTPUT_DIR = output_dir
     clearFolder(OUTPUT_DIR)
-            
         
-    summary, suites, orphans = parse_report(file)
+    if not os.path.os.path.isfile(report_file):
+        critical(f"File {report_file} not found")
+        sys.exit(1)
+        
+    summary, suites, orphans = parse_report(report_file)
     
-    print("Building index", end="")
+    info("Building index")
     try:
         build_index(summary)
     except Exception as e:
-        error(f" - Error: {e}")
+        error("Cannot build index: {e}")
     else:
-        print(f" - Done")
+        debug("Index built")
     
     
     for suite in suites+[orphans]:
-        print(f"Building suite {suite.fullName}", end="")
+        info(f"Building suite {suite.fullName}")
         try:
             build_suite_index(suite)
         except Exception as e:
-            error(f" - Error: {e}")
+            error(f"Cannot build suite {suite.fullName}: {e}")
             raise e
         else:
-            print(f" - Done")
+            debug(f"Suite {suite.fullName} built")
         
-    print("Building suite list", end="")
+    info("Building suite list")
     try:
         build_suite_list(suites+[orphans])
     except Exception as e:
-        error(f" - Error: {e}")
+        error(f"Cannot build suite list: {e}")
     else:
-        print(f" - Done")
+        debug("Suite list built")
     
-    print("Building spec list", end="")
+    info("Building spec list")
     try:
         build_spec_list_from_suites(suites+[orphans])
     except Exception as e:
-        error(f" - Error: {e}")
+        error(f"Cannot build spec list: {e}")
     else:
-        print(f" - Done")
+        debug("Spec list built")
         
-    print("Building complete")
+    info("Build complete")
     
 if __name__ == "__main__":
-    main(sys.argv)
+    parser = argparse.ArgumentParser(description="Generate HTML reports from JSON5 reports")
+    parser.add_argument("report_file", type=str, help="The JSON5 report file")
+    parser.add_argument("-o", "--output", help="The output directory", default="reports")
+    args = parser.parse_args()
+    
+    main(args.report_file, args.output)

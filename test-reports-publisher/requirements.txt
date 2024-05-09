@@ -2,7 +2,7 @@
 
 certifi==2024.2.2
 charset-normalizer==3.3.2
+gamu_logger @ https://github.com/GamuNetwork/logger/releases/download/0.1.1/gamu_logger-0.1.1-py3-none-any.whl#sha256=02f49168a75e7e5b6ef4295f52cacd29756ccdde4034949e849636f9e1b14573
 idna==3.7
-pycryptodome==3.20.0
 requests==2.31.0
 urllib3==2.2.1
