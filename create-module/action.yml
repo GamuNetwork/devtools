@@ -53,5 +53,5 @@ runs:
   # run the script
     - name: Run script
       id: run
-      run: python $GITHUB_ACTION_PATH/main.py ${{ inputs.build-folder }} ${{ inputs.module-name }}  ${{ inputs.module-version }} ${{ inputs.module-type }} ${{ inputs.module-description }} ${{ inputs.module-author }} --branch ${{ inputs.git-branch }} -d
+      run: python $GITHUB_ACTION_PATH/main.py "${{ inputs.build-folder }}" "${{ inputs.module-name }}"  "${{ inputs.module-version }}" ${{ inputs.module-type }} "${{ inputs.module-description }}" "${{ inputs.module-author }}" --branch ${{ inputs.git-branch }} -d
       shell: bash
