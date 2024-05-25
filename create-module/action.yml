@@ -1,0 +1,57 @@
+name: Create Module
+description: 'Create a new module for GamuNetwork server'
+
+inputs:
+  build-folder:
+    description: 'Folder containing the build files'
+    required: true
+  module-name:
+    description: 'Name of the module'
+    required: true
+  module-version:
+    description: 'Version of the module'
+    required: true
+  module-type:
+    description: 'Type of the module, can be either "game" or "interface"'
+    required: true
+  module-description:
+    description: 'Description of the module'
+    required: false
+    default: 'No description provided'
+  module-author:
+    description: 'Author of the module'
+    required: false
+    default: 'Unknown'
+  git-branch:
+    description: 'Branch from which the module is being built'
+    required: false
+    default: 'main'
+  
+outputs:
+  module-path:
+    description: 'Path to the generated module'
+    value: ${{ inputs.module-name }}-${{ inputs.module-version }}.gamod
+
+runs:
+  using: "composite"
+
+  steps:
+    # setup python 3.11 environment, install dependencies
+    - name: Setup Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Upgrade pip
+      run: python -m pip install --upgrade pip
+      shell: bash
+
+    - name: Install dependencies
+      run: pip install -r $GITHUB_ACTION_PATH/requirements.txt
+      shell: bash
+
+  # run the script
+    - name: Run script
+      id: run
+      run: python $GITHUB_ACTION_PATH/main.py ${{ inputs.build-folder }} ${{ inputs.module-name }}  ${{ inputs.module-version }} ${{ inputs.module-type }} ${{ inputs.module-description }} ${{ inputs.module-author }} --branch ${{ inputs.git-branch }} -d
+      shell: bash
