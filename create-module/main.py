@@ -7,6 +7,10 @@ from customTypes import Version, ModuleTypes
 
 from gamuLogger import debug, info, error, critical, Printer
 
+def parseModuleNames(module_name: str):
+    # GamuNetwork/ModuleName -> ModuleName
+    return module_name.replace("\\", "/").split("/")[-1]
+
 def createJson(module_name, module_version : Version, module_type : ModuleTypes, module_description, module_author, branch = "main"):
     debug(f"Creating json file for module {module_name} version {module_version}")
     module = {
@@ -76,7 +80,7 @@ if __name__ == "__main__":
 
         info(f"Creating archive for module {args.module_name} version {module_version}")
         
-        createArchive(args.compiled_code_folder, args.module_name, module_version, module_type, args.module_description, args.module_author, args.branch)
+        createArchive(args.compiled_code_folder, parseModuleNames(args.module_name), module_version, module_type, args.module_description, args.module_author, args.branch)
     
     except Exception as e:
         critical(f"Error creating module: {str(e)}")
