@@ -27,11 +27,6 @@ inputs:
     required: false
     default: 'main'
   
-outputs:
-  module-path:
-    description: 'Path to the generated module'
-    value: ${{ inputs.module-name }}-${{ inputs.module-version }}.gamod
-
 runs:
   using: "composite"
 
