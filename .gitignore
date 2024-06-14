@@ -8,6 +8,7 @@
 # temporary files
 *.cache
 *.tmp
+temp/
 
 # compiled files
 *py[cod]
