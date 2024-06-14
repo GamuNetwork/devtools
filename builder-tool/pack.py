@@ -1,4 +1,4 @@
-from src.builder-tool import BaseBuilder, Logger, PYTHON, NULL_TARGET #this file use the module to build itself
+from src.builderTool import BaseBuilder, Logger, PYTHON, NULL_TARGET #this file use the module to build itself
 import os
 import shutil
 
