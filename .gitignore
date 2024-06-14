@@ -23,6 +23,7 @@ temp/
 *.a
 *.out
 *.app
+dist/
 
 # dependencies
 node_modules/
