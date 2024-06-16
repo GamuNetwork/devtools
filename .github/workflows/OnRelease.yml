@@ -23,7 +23,7 @@ jobs:
       run: cd builder-tool && pip install -r requirements.txt
 
     - name: Build
-      run: cd builder-tool && python pack.py --dist-dir dist -pv ${{ github.event.release.tag_name }} --debug
+      run: cd builder-tool && python pack.py -pv ${{ github.event.release.tag_name }} --debug
 
     - name: Publish
       uses: AButler/upload-release-assets@v3.0

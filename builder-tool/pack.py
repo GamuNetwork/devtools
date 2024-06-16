@@ -1,5 +1,4 @@
 from src.builderTool import BaseBuilder, Logger, PYTHON, NULL_TARGET #this file use the module to build itself
-import os
 import shutil
 
 
@@ -14,10 +13,9 @@ class Builder(BaseBuilder):
         Logger.debug('Copying readme.md')
         self.CopyAndReplaceByPackageVersion('readme.md', self.tempDir + '/readme.md')
         
+        
     def Build(self):
-        command = f'{PYTHON} -m build --outdir {self.distDir} {self.tempDir} > {NULL_TARGET}'
-        Logger.debug('Executing command: ' + command)
-        os.system(command)
+        self.runCommand(f'{PYTHON} -m build --outdir {self.distDir} {self.tempDir} > {NULL_TARGET}')
         
 
 BaseBuilder.execute()
