@@ -93,7 +93,7 @@ class BaseBuilder:
         
         self.clean = not self.args.no_clean
         
-        self.__remainingSteps = len([step for step in self.__steps if self.__steps[step] != self.Status.DISABLED])
+        self.__remainingSteps = [step for step in self.__steps if self.__steps[step] != self.Status.DISABLED]
         
         self.__stepDependencies = {
             "Setup": {},
@@ -238,14 +238,16 @@ class BaseBuilder:
         for step in self.__steps:
             if step not in configuredSteps:
                 self.__steps[step] = self.Status.DISABLED
-                self.__remainingSteps -= 1
+                self.__remainingSteps.remove(step)
                 Logger.debug('Step "' + step + '" disabled')
         
         
         HasFailed = False
-        while self.__remainingSteps > 0 and not HasFailed:
-            Logger.deepDebug("Remaining steps: " + str(self.__remainingSteps))
+        while len(self.__remainingSteps) > 0 and not HasFailed:
             for step in self.__steps:
+                if self.__steps[step] == self.Status.DISABLED:
+                    continue
+                Logger.deepDebug(f"evaluating step {step}\nremaining : " + str(self.__remainingSteps))
                 if self.__steps[step] == self.Status.WAITING and self.__canStepBeStarted(step):
                     Logger.info('Starting step "' + step + '"')
                     self.__steps[step] = self.Status.RUNNING
@@ -255,7 +257,7 @@ class BaseBuilder:
                         
                     if hasSucceeded:
                         self.__steps[step] = self.Status.FINISHED
-                        self.__remainingSteps -= 1
+                        self.__remainingSteps.remove(step)
                     else:
                         self.__steps[step] = self.Status.FAILED
                         Logger.error('Step "' + step + '" failed')
@@ -285,5 +287,5 @@ class BaseBuilder:
         possibleSteps = ['Setup', 'Tests', 'BuildTests', 'Docs', 'Build', 'Publish']
         steps = [step for step in subClasses[0].__dict__ if step in possibleSteps]
         subClasses[0]().__run(steps)
-        
+    
         
