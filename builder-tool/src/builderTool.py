@@ -227,6 +227,7 @@ class BaseBuilder:
         try:
             hasSucceeded = getattr(self, step)()
         except Exception as e:
+            Logger.error('Step "' + step + '" raised an exception: ' + str(e))
             return False
         else:
             if hasSucceeded is None:
