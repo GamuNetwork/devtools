@@ -238,7 +238,8 @@ class BaseBuilder:
         for step in self.__steps:
             if step not in configuredSteps:
                 self.__steps[step] = self.Status.DISABLED
-                self.__remainingSteps.remove(step)
+                if step in self.__remainingSteps:
+                    self.__remainingSteps.remove(step)
                 Logger.debug('Step "' + step + '" disabled')
         
         
