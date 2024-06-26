@@ -10,11 +10,17 @@ NULL_TARGET = '/dev/null' if os.name == 'posix' else 'nul'
 
 try:
     from gamuLogger import Logger, LEVELS, debugFunc
-except ImportError:
+    import gamuLogger
+    
+    if gamuLogger.__version__ < '2.0.0-beta.9':
+        raise ImportError('Logger version is too old')
+    
+except (ImportError, AttributeError):
     print("Logger not found, installing...", end=' ', flush=True)
-    os.system(f'{sys.executable} -m pip install https://github.com/GamuNetwork/logger/releases/download/2.0.0-alpha.4/gamu_logger-2.0.0a4-py3-none-any.whl > {NULL_TARGET} 2> {NULL_TARGET}')
+    os.system(f'{sys.executable} -m pip install https://github.com/GamuNetwork/logger/releases/download/2.0.0-beta.9/gamu_logger-2.0.0b9-py3-none-any.whl > {NULL_TARGET} 2> {NULL_TARGET}')
     print("done")
     from gamuLogger import Logger, LEVELS, debugFunc
+    import gamuLogger
     
 Logger.setModule('Builder')
 
@@ -124,6 +130,7 @@ class BaseBuilder:
             Logger.setLevel('stdout', LEVELS.DEEP_DEBUG)
         
         
+        Logger.debug("Using gamuLogger version : " + gamuLogger.__version__)
         Logger.debug('Using temporary directory: ' + os.path.abspath(self.args.temp_dir))
         Logger.debug('Using distribution directory: ' + os.path.abspath(self.args.dist_dir))
         
@@ -139,46 +146,62 @@ class BaseBuilder:
     def distDir(self):
         return os.path.abspath(self.args.dist_dir)
     
-    def addAndReplaceByPackageVersion(self, src, dst, versionString = "{version}"):
+    def addAndReplaceByPackageVersion(self, src, dest = None, versionString = "{version}"):
+        """Add a file to the temporary directory and replace a string by the package version"""
         Logger.debug('Adding file: ' + src + ' and replacing version string by ' + self.packageVersion)
         with open(src, 'r') as file:
             content = file.read()
         content = content.replace(versionString, self.packageVersion)
-        with open(dst, 'w') as file:
+        if dest is None:
+            dest = src
+        with open(self.tempDir + '/' + dest, 'w') as file:
             file.write(content)
+        return True
         
     def runCommand(self, command) -> bool:
-        Logger.debug('Executing command: ' + command)
+        """Execute a command in the temporary directory"""
+        Logger.debug(f'Executing command {command}\n    working directory: {self.tempDir}')
         stdoutFile, stdoutPath = mkstemp()
         stderrFile, stderrPath = mkstemp()
+        
+        cwd = os.getcwd()
+        os.chdir(self.tempDir)
         returnCode = os.system(f'{command} > {stdoutPath} 2> {stderrPath}')
+        os.chdir(cwd)
+        
         if returnCode != 0:
-            Logger.error(f'Task failed successfully with return code {returnCode}') # this is for the joke
+            Logger.error(f'Task failed with return code {returnCode}')
             with open(stdoutPath, 'r') as file:
-                Logger.debug('stdout: ' + file.read())
+                Logger.debug('stdout:\n' + file.read())
             with open(stderrPath, 'r') as file:
-                Logger.debug('stderr: ' + file.read())
+                Logger.debug('stderr:\n' + file.read())
             
             os.remove(stdoutPath)
             os.remove(stderrPath)
-            return False
+            raise RuntimeError('Command failed')
         else:
             Logger.debug('Command executed successfully')
             os.remove(stdoutPath)
             os.remove(stderrPath)
             return True
         
+        
     def addFile(self, path, dest = None):
+        """Copy a file to the temporary directory"""
         Logger.debug('Adding file: ' + path)
         if dest is None:
             dest = path
         shutil.copy(path, self.tempDir + '/' + dest)
+        return True
+        
         
     def addDirectory(self, path, dest = None):
+        """Copy a directory to the temporary directory"""
         Logger.debug('Adding directory: ' + path)
         if dest is None:
             dest = path
         shutil.copytree(path, self.tempDir + '/' + dest, ignore=shutil.ignore_patterns('*.pyc', '*.pyo', '__pycache__'))
+        return True
         
         
     def __clean(self) -> bool:
@@ -231,7 +254,6 @@ class BaseBuilder:
             return False
         else:
             if hasSucceeded is None:
-                Logger.warning('Step "' + step + '" did not return a value, but didn\'t throw anything, assuming it has succeeded')
                 return True
             return hasSucceeded
     
@@ -268,6 +290,8 @@ class BaseBuilder:
 
         if self.clean:
             self.__clean()
+        else:
+            Logger.warning(f'Directory {self.tempDir} wasn\'t deleted because cleaning is disabled')
                     
         if HasFailed:
             Logger.critical('A step has failed')
