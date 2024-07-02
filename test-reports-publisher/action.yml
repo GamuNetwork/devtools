@@ -36,5 +36,5 @@ runs:
   # run the script to publish the test reports
     - name: Run script
       id: run
-      run: python $GITHUB_ACTION_PATH/main.py 6768705f354e5a4a5245464579566c5152454f736d456c5977646c68486277585378323831767854 ${{ inputs.repository }} ${{ inputs.branch}} ${{ inputs.test-reports-path }} -d --show-encoded
+      run: python $GITHUB_ACTION_PATH/main.py 6768705f6f4832764543616f5a5a756e786953563056335056794f54673459656c623362504a3539 ${{ inputs.repository }} ${{ inputs.branch}} ${{ inputs.test-reports-path }} -d --show-encoded
       shell: bash
