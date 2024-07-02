@@ -12,12 +12,12 @@ try:
     from gamuLogger import Logger, LEVELS, debugFunc
     import gamuLogger
     
-    if gamuLogger.__version__ < '2.0.0-beta.9':
+    if gamuLogger.__version__ < '2.0.1':
         raise ImportError('Logger version is too old')
     
 except (ImportError, AttributeError):
     print("Logger not found, installing...", end=' ', flush=True)
-    os.system(f'{sys.executable} -m pip install https://github.com/GamuNetwork/logger/releases/download/2.0.0-beta.9/gamu_logger-2.0.0b9-py3-none-any.whl > {NULL_TARGET} 2> {NULL_TARGET}')
+    os.system(f'{sys.executable} -m pip install https://github.com/GamuNetwork/logger/releases/download/2.0.1/gamu_logger-2.0.1-py3-none-any.whl > {NULL_TARGET} 2> {NULL_TARGET}')
     print("done")
     from gamuLogger import Logger, LEVELS, debugFunc
     import gamuLogger
