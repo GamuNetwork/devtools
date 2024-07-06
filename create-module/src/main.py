@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from customTypes import Version, ModuleTypes
 
-from gamuLogger import debug, info, error, critical, Printer
+from gamuLogger import debug, info, error, critical, Logger, LEVELS
 
 def parseModuleNames(module_name: str):
     # GamuNetwork/ModuleName -> ModuleName
@@ -73,7 +73,7 @@ if __name__ == "__main__":
         args = parser.parse_args()
         
         if args.debug:
-            Printer().set_level(Printer.LEVELS.DEBUG)
+            Logger.setLevel("stdout", LEVELS.DEBUG)
     
         module_version = Version.fromString(args.module_version)
         module_type = ModuleTypes.fromString(args.module_type)
