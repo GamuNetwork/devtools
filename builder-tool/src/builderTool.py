@@ -179,9 +179,9 @@ class BaseBuilder:
         Default value for deepDebugArg is the same as debugArg
         """
         if self.debugLevel == LEVELS.DEBUG:
-            command += debugArg
+            command += " " + debugArg
         elif self.debugLevel == LEVELS.DEEP_DEBUG:
-            command += deepDebugArg if deepDebugArg is not None else debugArg
+            command += " " + (deepDebugArg if deepDebugArg is not None else debugArg)
         Logger.debug(f'Executing command {command}\n    working directory: {self.tempDir}')
         if hideOutput:
             stdoutFile, stdoutPath = mkstemp()
