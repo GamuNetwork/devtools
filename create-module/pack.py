@@ -3,7 +3,7 @@ from builderTool import BaseBuilder, PYTHON #this file use the module to build i
 
 class Builder(BaseBuilder):
     def Setup(self):
-        self.addDirectory('src')
+        self.addDirectory('src', 'src/createModule')
         self.addAndReplaceByPackageVersion('pyproject.toml')
         self.runCommand(f'{PYTHON} -m pip install --upgrade build')
         

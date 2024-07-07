@@ -3,7 +3,7 @@ from src.builderTool import BaseBuilder, Logger, PYTHON #this file use the modul
 
 class Builder(BaseBuilder):
     def Setup(self):
-        self.addDirectory('src')
+        self.addDirectory('src', 'src/builderTool')
         self.addAndReplaceByPackageVersion('pyproject.toml')
         self.addAndReplaceByPackageVersion('readme.md')
         self.runCommand(f'{PYTHON} -m pip install --upgrade build')

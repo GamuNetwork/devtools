@@ -158,32 +158,42 @@ class BaseBuilder:
             file.write(content)
         return True
         
-    def runCommand(self, command) -> bool:
+    def runCommand(self, command, hideOutput = True) -> bool:
         """Execute a command in the temporary directory"""
         Logger.debug(f'Executing command {command}\n    working directory: {self.tempDir}')
-        stdoutFile, stdoutPath = mkstemp()
-        stderrFile, stderrPath = mkstemp()
+        if hideOutput:
+            stdoutFile, stdoutPath = mkstemp()
+            stderrFile, stderrPath = mkstemp()
         
-        cwd = os.getcwd()
-        os.chdir(self.tempDir)
-        returnCode = os.system(f'{command} > {stdoutPath} 2> {stderrPath}')
-        os.chdir(cwd)
-        
-        if returnCode != 0:
-            Logger.error(f'Task failed with return code {returnCode}')
-            with open(stdoutPath, 'r') as file:
-                Logger.debug('stdout:\n' + file.read())
-            with open(stderrPath, 'r') as file:
-                Logger.debug('stderr:\n' + file.read())
+            cwd = os.getcwd()
+            os.chdir(self.tempDir)
+            returnCode = os.system(f'{command} > {stdoutPath} 2> {stderrPath}')
+            os.chdir(cwd)
             
-            os.remove(stdoutPath)
-            os.remove(stderrPath)
-            raise RuntimeError('Command failed')
+            if returnCode != 0:
+                Logger.error(f'Task failed with return code {returnCode}')
+                with open(stdoutPath, 'r') as file:
+                    Logger.debug('stdout:\n' + file.read())
+                with open(stderrPath, 'r') as file:
+                    Logger.debug('stderr:\n' + file.read())
+                
+                os.remove(stdoutPath)
+                os.remove(stderrPath)
+                raise RuntimeError('Command failed')
+            else:
+                Logger.debug('Command executed successfully')
+                os.remove(stdoutPath)
+                os.remove(stderrPath)
+                return True
+            
         else:
-            Logger.debug('Command executed successfully')
-            os.remove(stdoutPath)
-            os.remove(stderrPath)
-            return True
+            returnCode = os.system(f'{command}')
+            if returnCode != 0:
+                Logger.error(f'Task failed with return code {returnCode}')
+                raise RuntimeError('Command failed')
+            else:
+                Logger.debug('Command executed successfully')
+                return True
         
         
     def addFile(self, path, dest = None):

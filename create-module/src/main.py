@@ -7,84 +7,44 @@ from customTypes import Version, ModuleTypes
 
 from gamuLogger import debug, info, error, critical, Logger, LEVELS
 
-def parseModuleNames(module_name: str):
-    # GamuNetwork/ModuleName -> ModuleName
-    return module_name.replace("\\", "/").split("/")[-1]
+from .utils import addFolderToZip
 
-def createJson(module_name, module_version : Version, module_type : ModuleTypes, module_description, module_author, branch = "main"):
-    debug(f"Creating json file for module {module_name} version {module_version}")
-    module = {
-        "name": module_name,
-        "version": str(module_version),
-        "type": str(module_type),
-        "description": module_description,
-        "author": module_author,
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "repository": f"https://github.com/GamuNetwork/{module_name}",
-        "branch": branch
-    }
-    result = json.dumps(module, indent=4)
-    debug(f"Json file created: {result}")
-    return result
-
-def addFolderToZip(zip: ZipFile, arc_path, folder, parent_folder = ""):
-    debug(f"Adding folder {folder} to zip")
-    for file in os.listdir(folder):
-        file_path = os.path.join(folder, file)
-        if os.path.isfile(file_path):
-            debug(f"Adding file {file} to zip")
-            zip.write(file_path, os.path.join(arc_path, parent_folder, file))
-        elif os.path.isdir(file_path):
-            addFolderToZip(zip, arc_path, file_path, os.path.join(parent_folder, file))
-
-def createArchive(compiled_code_folder, module_name, module_version : Version, module_type : ModuleTypes, module_description, module_author, branch = "main"):
-    with ZipFile(f'{module_name}-{str(module_version)}.gamod', 'w') as zip:
-        addFolderToZip(zip, "build", compiled_code_folder)
-        debug(f"Compiled code folder added to archive")
-        zip.writestr('module.json', createJson(module_name, module_version, module_type, module_description, module_author, branch))
-        debug(f"Json file added to archive")
-    
-    return f'{module_name}-{str(module_version)}.gamod'
-
-if __name__ == "__main__":
-    import argparse
-    
-    def handleParserError(message):
-        error(message)
-        raise ValueError("Invalid arguments")
-    
-    def createParser():
-        parser = argparse.ArgumentParser(description="Create a module archive")
-        parser.error = handleParserError
-        parser.add_argument("compiled_code_folder", help="The compiled code folder (dist folder for javascript)")
-        parser.add_argument("module_name", help="The module name")
-        parser.add_argument("module_version", help="The module version")
-        parser.add_argument("module_type", help="The module type")
-        parser.add_argument("module_description", help="The module description")
-        parser.add_argument("module_author", help="The module author")
-        parser.add_argument("--branch", help="The branch of the repository", default="main")
-        parser.add_argument("--debug", "-d", help="Enable debug mode", action="store_true")
-        return parser
-    
-    info("Starting module creation")
-    
-    try:
-        parser = createParser()
-        args = parser.parse_args()
+class Archive:
+    def __init__(self, compiled_code_folder, module_name, module_version : Version, module_type : ModuleTypes, module_description, module_author, branch = "main"):
+        self.compiled_code_folder = compiled_code_folder
+        self.module_name = module_name
+        self.module_version = module_version
+        self.module_type = module_type
+        self.module_description = module_description
+        self.module_author = module_author
+        self.branch = branch
         
-        if args.debug:
-            Logger.setLevel("stdout", LEVELS.DEBUG)
+        self.archiveName = f'{self.module_name}-{str(self.module_version)}.gamod'
     
-        module_version = Version.fromString(args.module_version)
-        module_type = ModuleTypes.fromString(args.module_type)
-
-        info(f"Creating archive for module {args.module_name} version {module_version}")
+    def create(self):
+        self.zipFile = ZipFile(self.archiveName, 'w')
+        self.__addCode()
+        self.__createJson()
         
-        createArchive(args.compiled_code_folder, parseModuleNames(args.module_name), module_version, module_type, args.module_description, args.module_author, args.branch)
+    def __addCode(self):
+        debug(f"Adding code from {self.compiled_code_folder} to zip")
+        addFolderToZip(self.zipFile, "build", self.compiled_code_folder)
     
-    except Exception as e:
-        critical(f"Error creating module: {str(e)}")
-        exit(1)
+    def __createJson(self):
+        debug(f"Creating json file for module {self.module_name} version {self.module_version}")
+        module = {
+            "name": self.module_name,
+            "version": str(self.module_version),
+            "type": str(self.module_type),
+            "description": self.module_description,
+            "author": self.module_author,
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "repository": f"https://github.com/GamuNetwork/{self.module_name}",
+            "branch": self.branch
+        }
+        result = json.dumps(module, indent=4)
+        debug(f"Json file created: {result}")
+        self.zipFile.writestr('module.json', result)
     
-    info(f"Archive created: {args.module_name}-{str(module_version)}.gamod")
-    exit(0)
+    def __str__(self):
+        return self.archiveName
