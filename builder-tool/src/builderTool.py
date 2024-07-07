@@ -138,6 +138,17 @@ class BaseBuilder:
         Logger.debug('Using temporary directory: ' + os.path.abspath(self.args.temp_dir))
         Logger.debug('Using distribution directory: ' + os.path.abspath(self.args.dist_dir))
         
+        # clear the dist directory
+        try:
+            shutil.rmtree(self.args.dist_dir)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            Logger.error('Error while cleaning dist directory: ' + str(e))
+            sys.exit(1)
+        
+        os.makedirs(self.args.dist_dir, exist_ok=True)
+        
     @property
     def tempDir(self):
         return os.path.abspath(self.args.temp_dir)

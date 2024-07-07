@@ -40,12 +40,10 @@ class Archive:
         if self.step != Step.INITIATED:
             raise ValueError("Archive already created")
         
-        Logger.info(f"starting creation of archive {self.archiveName}")
         self.__checkFolderContent()
         self.zipFile = ZipFile(self.archiveName, 'w')
         self.__addCode()
         self.__createJson()
-        Logger.info(f"Archive {self.archiveName} created")
         self.step = Step.BUILT
     
     def __checkFolderContent(self):
