@@ -124,10 +124,14 @@ class BaseBuilder:
             }
         } #type: dict[str, dict[str, BaseBuilder.RequireMode]]
         
+        self.debugLevel = LEVELS.INFO
+        
         if self.args.debug:
-            Logger.setLevel('stdout', LEVELS.DEBUG)
+            self.debugLevel = LEVELS.DEBUG
         elif self.args.deep_debug:
-            Logger.setLevel('stdout', LEVELS.DEEP_DEBUG)
+            self.debugLevel = LEVELS.DEEP_DEBUG
+            
+        Logger.setLevel('stdout', self.debugLevel)
         
         
         Logger.debug("Using gamuLogger version : " + gamuLogger.__version__)
@@ -158,8 +162,15 @@ class BaseBuilder:
             file.write(content)
         return True
         
-    def runCommand(self, command, hideOutput = True) -> bool:
-        """Execute a command in the temporary directory"""
+    def runCommand(self, command : str, hideOutput = True, debugArg = "", deepDebugArg : str = None) -> bool:
+        """
+        Execute a command in the temporary directory\n
+        Default value for deepDebugArg is the same as debugArg
+        """
+        if self.debugLevel == LEVELS.DEBUG:
+            command += debugArg
+        elif self.debugLevel == LEVELS.DEEP_DEBUG:
+            command += deepDebugArg if deepDebugArg is not None else debugArg
         Logger.debug(f'Executing command {command}\n    working directory: {self.tempDir}')
         if hideOutput:
             stdoutFile, stdoutPath = mkstemp()

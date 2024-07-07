@@ -80,3 +80,8 @@ class ModuleTypes(Enum):
             return ModuleTypes.INTERFACE
         else:
             return ModuleTypes.OTHER
+        
+class Step(Enum):
+    INITIATED = 1
+    BUILT = 2
+    
