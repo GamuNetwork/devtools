@@ -1,11 +1,10 @@
 
 from zipfile import ZipFile
-import os
 import json
 from datetime import datetime
-from customTypes import Version, ModuleTypes
+from .customTypes import Version, ModuleTypes
 
-from gamuLogger import debug, info, error, critical, Logger, LEVELS
+from gamuLogger import debug
 
 from .utils import addFolderToZip
 
