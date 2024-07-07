@@ -1,6 +1,8 @@
 from zipfile import ZipFile
-from gamuLogger import debug
+from gamuLogger import debug, Logger
 import os
+
+Logger.setModule("createModule")
 
 def addFolderToZip(zip: ZipFile, arc_path, folder, parent_folder = ""):
     debug(f"Adding folder {folder} to zip")

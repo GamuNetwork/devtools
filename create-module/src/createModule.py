@@ -10,6 +10,8 @@ from .customTypes import Version, ModuleTypes, Step
 
 from .utils import addFolderToZip
 
+Logger.setModule("createModule")
+
 class Archive:
     def __init__(self,
                  outDir : str,
@@ -43,21 +45,11 @@ class Archive:
         self.__createJson()
         Logger.info(f"Archive {self.archiveName} created")
         self.step = Step.BUILT
-        
-    
-    def getMD5(self):
-        if self.step != Step.BUILT:
-            raise ValueError("Archive not created")
-        md5 = hashlib.md5()
-        with open(self.archiveName, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                md5.update(chunk)
-        return md5.hexdigest()
     
     def __checkFolderContent(self):
         for requiredFile in ["server/main.js", "client/index.html"]:
-            if requiredFile not in os.listdir(self.compiled_code_folder):
-                raise FileNotFoundError(f"File {requiredFile} not found in {self.compiled_code_folder}")
+            if not os.path.exists(f"{self.compiled_code_folder}/{requiredFile}"):
+                raise ValueError(f"File {requiredFile} not found in {self.compiled_code_folder}")
            
     def __addCode(self):
         Logger.debug(f"Adding code from {self.compiled_code_folder} to zip")

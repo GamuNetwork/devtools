@@ -46,5 +46,4 @@ except Exception as e:
     exit(1)
 else:
     info(f"Archive created: {archive}")
-    info(f"MD5: {archive.getMD5()}")
     exit(0)
