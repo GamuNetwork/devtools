@@ -32,6 +32,8 @@ class Archive:
         
         self.archiveName = f'{outDir}/{self.module_name}-{str(self.module_version)}.gamod'
         
+        os.makedirs(outDir, exist_ok=True)
+        
         self.step = Step.INITIATED
     
     def create(self):
