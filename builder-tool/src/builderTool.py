@@ -330,6 +330,7 @@ class BaseBuilder:
             sys.exit(1)
         else:
             Logger.info('Build finished successfully')
+            Logger.info("exported files :\n\t"+ "\n\t".join(os.listdir(self.distDir)))
 
 
     @staticmethod
