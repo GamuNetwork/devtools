@@ -5,7 +5,7 @@ class Builder(BaseBuilder):
     def Setup(self):
         self.addDirectory('src', 'src/builderTool')
         self.addAndReplaceByPackageVersion('pyproject.toml')
-        self.addAndReplaceByPackageVersion('readme.md')
+        self.addFile('readme.md')
         self.runCommand(f'{PYTHON} -m pip install --upgrade build')
         
     def Build(self):
