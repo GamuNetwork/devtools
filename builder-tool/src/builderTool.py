@@ -235,6 +235,21 @@ class BaseBuilder:
         shutil.copytree(path, self.tempDir + '/' + dest, ignore=shutil.ignore_patterns('*.pyc', '*.pyo', '__pycache__'))
         return True
         
+    def exportFile(self, path, dest = None):
+        """Copy a file from the temporary directory to the distribution directory"""
+        Logger.debug('Exporting file: ' + path)
+        if dest is None:
+            dest = path
+        shutil.copy(self.tempDir + '/' + path, self.distDir + '/' + dest)
+        return True
+    
+    def exportFolder(self, path, dest = None):
+        """Copy a directory from the temporary directory to the distribution directory"""
+        Logger.debug('Exporting directory: ' + path)
+        if dest is None:
+            dest = path
+        shutil.copytree(self.tempDir + '/' + path, self.distDir + '/' + dest)
+        return True
         
     def __clean(self) -> bool:
         Logger.info('Cleaning temporary directory')
