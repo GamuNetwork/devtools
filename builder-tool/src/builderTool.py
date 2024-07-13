@@ -288,6 +288,14 @@ class BaseBuilder:
             if hasSucceeded is None:
                 return True
             return hasSucceeded
+        
+    def __listExport(self):
+        files = []
+        for root, _, filenames in os.walk(self.distDir):
+            for filename in filenames:
+                abspath = os.path.join(root, filename)
+                files.append(abspath.replace(self.distDir+'/', ''))
+        return files
     
     def __run(self, configuredSteps : list[str]):
         for step in self.__steps:
@@ -330,7 +338,7 @@ class BaseBuilder:
             sys.exit(1)
         else:
             Logger.info('Build finished successfully')
-            Logger.info("exported files :\n\t"+ "\n\t".join(os.listdir(self.distDir)))
+            Logger.info("exported files:\n\t"+ "\n\t".join(self.__listExport()))
 
 
     @staticmethod
