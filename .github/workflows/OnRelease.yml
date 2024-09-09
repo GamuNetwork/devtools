@@ -19,6 +19,9 @@ jobs:
     - name: Update pip
       run: python -m pip install --upgrade pip
 
+    - name: Install GamuLogger
+      run: python -m pip install https://github.com/GamuNetwork/logger/releases/download/2.0.3/gamu_logger-2.0.3-py3-none-any.whl
+
     - name: Build
       run: cd builder-tool && python pack.py -pv ${{ github.event.release.tag_name }} --debug
 
