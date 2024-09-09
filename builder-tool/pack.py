@@ -1,4 +1,4 @@
-from src.__init__ import BaseBuilder, PYTHON #this file use the module to build itself
+from src.__init__ import BaseBuilder #this file use the module to build itself
 
 
 class Builder(BaseBuilder):
@@ -6,8 +6,9 @@ class Builder(BaseBuilder):
         self.addDirectory('src', 'src/builderTool')
         self.addAndReplaceByPackageVersion('pyproject.toml')
         self.addFile('readme.md')
-        self.runCommand(f'{PYTHON} -m pip install --upgrade build')
+        self.venv().install('build')
         
     def Build(self):
-        self.runCommand(f'{PYTHON} -m build --outdir {self.distDir} .')
-        
+        self.venv().runModule(f'build --outdir {self.distDir} .')
+
+

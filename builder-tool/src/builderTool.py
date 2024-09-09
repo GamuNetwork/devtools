@@ -4,13 +4,10 @@ from enum import Enum
 from tempfile import mkdtemp, mkstemp
 import atexit
 
-# some useful constants
-        
-PYTHON = sys.executable
-NULL_TARGET = '/dev/null' if os.name == 'posix' else 'nul'
+from gamuLogger import Logger, LEVELS
+import gamuLogger
 
-from gamuLogger import Logger, LEVELS, debugFunc
-import gamuLogger    
+from .virtualEnv import Venv
     
 Logger.setModule('Builder')
 
@@ -21,8 +18,9 @@ steps are:
 - Setup
 - Build
 - Tests
+- BuildTests
 - Docs
-- Publish
+- Publish (optional)(default: disabled)
 
 example:
 ```python
@@ -52,22 +50,25 @@ Use `python {your_script}.py -h` to see the available options
         def __str__(self):
             return self.name
     
-    def __init__(self, args):
+    __CustomArgs = {}
+    
+    def __init__(self, args : dict[str, any], custom_args : dict[str, any]):
         if self.__class__ == BaseBuilder:
             raise Exception('BaseBuilder is an abstract class and cannot be instantiated')
         
-        self.args = args
+        self.__args = args
+        self.__custom_args = custom_args
         
         self.__steps = {
             "Setup":        self.Status.WAITING,
             "Build":        self.Status.WAITING,
-            "Tests":        self.Status.DISABLED    if self.args.no_tests   else self.Status.WAITING,
-            "BuildTests" :  self.Status.DISABLED    if self.args.no_tests   else self.Status.WAITING,
-            "Docs":         self.Status.DISABLED    if self.args.no_docs    else self.Status.WAITING,
-            "Publish":      self.Status.WAITING     if self.args.publish    else self.Status.DISABLED
+            "Tests":        self.Status.DISABLED    if self.__args["no_tests"]   else self.Status.WAITING,
+            "BuildTests" :  self.Status.DISABLED    if self.__args["no_tests"]   else self.Status.WAITING,
+            "Docs":         self.Status.DISABLED    if self.__args["no_docs"]   else self.Status.WAITING,
+            "Publish":      self.Status.WAITING     if self.__args["publish"]   else self.Status.DISABLED
         }
         
-        self.clean = not self.args.no_clean
+        self.__clean_enabled = not self.__args["no_clean"]
         
         self.__remainingSteps = [step for step in self.__steps if self.__steps[step] != self.Status.DISABLED]
         
@@ -94,43 +95,51 @@ Use `python {your_script}.py -h` to see the available options
             }
         } #type: dict[str, dict[str, BaseBuilder.RequireMode]]
         
-        self.debugLevel = LEVELS.INFO
+        self.__debugLevel = LEVELS.INFO
         
-        if self.args.debug:
-            self.debugLevel = LEVELS.DEBUG
-        elif self.args.deep_debug:
-            self.debugLevel = LEVELS.DEEP_DEBUG
+        if self.__args["debug"]:
+            self.__debugLevel = LEVELS.DEBUG
+        elif self.__args["deep_debug"]:
+            self.__debugLevel = LEVELS.DEEP_DEBUG
             
-        Logger.setLevel('stdout', self.debugLevel)
+        Logger.setLevel('stdout', self.__debugLevel)
         
         
         Logger.debug("Using gamuLogger version : " + gamuLogger.__version__)
-        Logger.debug('Using temporary directory: ' + os.path.abspath(self.args.temp_dir))
-        Logger.debug('Using distribution directory: ' + os.path.abspath(self.args.dist_dir))
+        Logger.debug('Using temporary directory: ' + os.path.abspath(self.__args["temp_dir"]))
+        Logger.debug('Using distribution directory: ' + os.path.abspath(self.__args["dist_dir"]))
         
         # clear the dist directory
         try:
-            shutil.rmtree(self.args.dist_dir)
+            shutil.rmtree(self.__args["dist_dir"])
         except FileNotFoundError:
             pass
         except Exception as e:
             Logger.error('Error while cleaning dist directory: ' + str(e))
             sys.exit(1)
         
-        os.makedirs(self.args.dist_dir, exist_ok=True)
-        
+        os.makedirs(self.__args["dist_dir"], exist_ok=True)
+
+
+############################################ PROPERTIES ###########################################
+
+
     @property
     def tempDir(self):
-        return os.path.abspath(self.args.temp_dir)
+        return os.path.abspath(self.__args["temp_dir"])
     
     @property
     def packageVersion(self):
-        return self.args.package_version
-    
+        return self.__args["package_version"]
+
     @property
     def distDir(self):
-        return os.path.abspath(self.args.dist_dir)
-    
+        return os.path.abspath(self.__args["dist_dir"])
+
+
+######################################### PUBLIC FUNCTIONS ########################################
+
+
     def addAndReplaceByPackageVersion(self, src, dest = None, versionString = "{version}"):
         """Add a file to the temporary directory and replace a string by the package version"""
         Logger.debug('Adding file: ' + src + ' and replacing version string by ' + self.packageVersion)
@@ -142,15 +151,15 @@ Use `python {your_script}.py -h` to see the available options
         with open(self.tempDir + '/' + dest, 'w') as file:
             file.write(content)
         return True
-        
+
     def runCommand(self, command : str, hideOutput = True, debugArg = "", deepDebugArg : str = None) -> bool:
         """
         Execute a command in the temporary directory\n
         Default value for deepDebugArg is the same as debugArg
         """
-        if self.debugLevel == LEVELS.DEBUG:
+        if self.__debugLevel == LEVELS.DEBUG:
             command += " " + debugArg
-        elif self.debugLevel == LEVELS.DEEP_DEBUG:
+        elif self.__debugLevel == LEVELS.DEEP_DEBUG:
             command += " " + (deepDebugArg if deepDebugArg is not None else debugArg)
         Logger.debug(f'Executing command {command}\n    working directory: {self.tempDir}')
         if hideOutput:
@@ -186,7 +195,7 @@ Use `python {your_script}.py -h` to see the available options
             else:
                 Logger.debug('Command executed successfully')
                 return True
-           
+
     def addFile(self, path, dest = None):
         """Copy a file to the temporary directory"""
         Logger.debug('Adding file: ' + path)
@@ -194,7 +203,7 @@ Use `python {your_script}.py -h` to see the available options
             dest = path
         shutil.copy(path, self.tempDir + '/' + dest)
         return True   
-        
+
     def addDirectory(self, path, dest = None):
         """Copy a directory to the temporary directory"""
         Logger.debug('Adding directory: ' + path)
@@ -202,7 +211,7 @@ Use `python {your_script}.py -h` to see the available options
             dest = path
         shutil.copytree(path, self.tempDir + '/' + dest, ignore=shutil.ignore_patterns('*.pyc', '*.pyo', '__pycache__'))
         return True
-        
+
     def exportFile(self, path, dest = None):
         """Copy a file from the temporary directory to the distribution directory"""
         Logger.debug('Exporting file: ' + path)
@@ -210,7 +219,7 @@ Use `python {your_script}.py -h` to see the available options
             dest = path
         shutil.copy(self.tempDir + '/' + path, self.distDir + '/' + dest)
         return True
-    
+
     def exportFolder(self, path, dest = None):
         """Copy a directory from the temporary directory to the distribution directory"""
         Logger.debug('Exporting directory: ' + path)
@@ -219,10 +228,36 @@ Use `python {your_script}.py -h` to see the available options
         shutil.copytree(self.tempDir + '/' + path, self.distDir + '/' + dest)
         return True
         
+    def hasArg(self, arg : str) -> bool:
+        """Check if an argument is present"""
+        return arg in self.__custom_args
+    
+    def getArg(self, arg : str) -> any:
+        """Get the value of an argument"""
+        return self.__custom_args[arg] if self.hasArg(arg) else None
+
+    def venv(self):
+        """Create a virtual environment in the temporary directory"""
+        return Venv.getInstance(self.tempDir + '/venv', self.tempDir)
+
+######################################### STATIC FUNCTIONS ########################################
+
+
+    @staticmethod
+    def addArgument(argument : str, help : str, default = None, action = "store_true"):
+        """
+        Add an argument to the command line parser
+        """
+        BaseBuilder.__CustomArgs[argument] = (help, default, action)
+
+
+######################################## INTERNAL FUNCTIONS #######################################
+
+
     def __clean(self) -> bool:
         Logger.info('Cleaning temporary directory')
         try:
-            shutil.rmtree(self.args.temp_dir)
+            shutil.rmtree(self.__args["temp_dir"])
         except Exception as e:
             Logger.error('Error while cleaning temp directory: ' + str(e))
             return False
@@ -309,7 +344,7 @@ Use `python {your_script}.py -h` to see the available options
                         HasFailed = True
                         break
 
-        if self.clean:
+        if self.__clean_enabled:
             self.__clean()
         else:
             Logger.warning(f'Directory {self.tempDir} wasn\'t deleted because cleaning is disabled')
@@ -319,11 +354,18 @@ Use `python {your_script}.py -h` to see the available options
             sys.exit(1)
         else:
             Logger.info('Build finished successfully')
-            Logger.info("exported files:\n\t"+ "\n\t".join(self.__listExport()))
+            exported = self.__listExport()
+            if len(exported) == 0:
+                Logger.warning('It seems that no files were exported, check your export functions if you expect some files to be exported')
+            else:
+                Logger.info("exported files:\n\t"+ "\n\t".join(exported))
+
+
+#################################### INTERNAL STATIC FUNCTIONS ####################################
 
     @staticmethod
-    def __get_args():
-        argumentParser = argparse.ArgumentParser(description='Builder tool')
+    def __config_args():
+        argumentParser = argparse.ArgumentParser(description='Builder tool', prog='builder-tool', add_help=False)
         
         loggerOptions = argumentParser.add_mutually_exclusive_group()
         loggerOptions.add_argument('--debug', action='store_true', help='Enable debug messages')
@@ -335,15 +377,39 @@ Use `python {your_script}.py -h` to see the available options
         buildersOptions.add_argument('--publish', action='store_true', help='Publish the package')
         buildersOptions.add_argument('--no-clean', action='store_true', help='Do not clean temporary files')
         buildersOptions.add_argument('--temp-dir', help='Temporary directory (used to generate the package)', type=str, default=mkdtemp())
-        buildersOptions.add_argument('--dist-dir', help='Distribution directory (where to save the built files)', type=str, default='dist')
-        buildersOptions.add_argument('-pv', '--package-version', help='set the version of the package you want to build', type=str, default='0.0.0')
+        buildersOptions.add_argument('--dist-dir', help='Distribution directory (where to save the built files) (default : "%(default)s")', type=str, default='dist')
+        buildersOptions.add_argument('-pv', '--package-version', help='set the version of the package you want to build (default : "%(default)s")', type=str, default='0.0.0')
         
         argumentParser.add_argument('--version', '-v', action='version', version='%(prog)s 1.0')
+        argumentParser.add_argument('--help', '-h', action='store_true', help='Show this help message and exit')
         
-        return argumentParser.parse_args()
+        return argumentParser
+        
+    @staticmethod
+    def __get_args(argumentParser):
+        allArgs = argumentParser.parse_args()
+        reservedArgsKeys = ['debug', 'deep_debug', 'no_tests', 'no_docs', 'publish', 'no_clean', 'temp_dir', 'dist_dir', 'package_version', 'help']
+        
+        # split the args into two lists (args, custom_args)
+        args = {key: value for key, value in vars(allArgs).items() if key in reservedArgsKeys}
+        custom_args = {key: value for key, value in vars(allArgs).items() if key not in reservedArgsKeys}
+        return args, custom_args
     
     @staticmethod
-    def __execute(args):
+    def __execute():
+        argumentParser = BaseBuilder.__config_args()
+        
+        customOptions = argumentParser.add_argument_group('Custom options')
+        for arg in BaseBuilder.__CustomArgs:
+            helpMessage, default, action = BaseBuilder.__CustomArgs[arg]
+            customOptions.add_argument(arg, help=helpMessage, default=default, action=action)
+            
+        args, custom_args = BaseBuilder.__get_args(argumentParser)
+            
+        if 'help' in args and args['help']:
+            argumentParser.print_help()
+            return
+        
         subClasses = BaseBuilder.__subclasses__()
         if len(subClasses) == 0:
             Logger.critical('No builders found')
@@ -356,12 +422,12 @@ Use `python {your_script}.py -h` to see the available options
         
         possibleSteps = ['Setup', 'Tests', 'BuildTests', 'Docs', 'Build', 'Publish']
         steps = [step for step in builderClass.__dict__ if step in possibleSteps]
-        builderInstance = builderClass(args)
+        builderInstance = builderClass(args, custom_args)
         builderInstance.__run(steps)
     
     @staticmethod
     def register_execute():
-        args = BaseBuilder.__get_args()
-        atexit.register(BaseBuilder.__execute, args)
+        atexit.register(BaseBuilder.__execute)
     
 BaseBuilder.register_execute()
+
