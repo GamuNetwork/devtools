@@ -16,28 +16,25 @@ Logger.setModule('Builder')
 
 class BaseBuilder:
     """
-    Create a new builder by subclassing this class and implementing the steps as methods
-    steps are:
-    - Setup
-    - Build
-    - Tests
-    - Docs
-    - Publish
-    
-    example:
-    ```python
-    class Builder(BaseBuilder):
-        def Setup(self):
-            # do something
-            
-        def Build(self):
-            # do something
-            
-    BaseBuilder.execute() #this will run the steps
-    ```
-    
-    Use `python {your_script}.py -h` to see the available options
-    """
+Create a new builder by subclassing this class and implementing the steps as methods
+steps are:
+- Setup
+- Build
+- Tests
+- Docs
+- Publish
+
+example:
+```python
+class Builder(BaseBuilder):
+    def Setup(self):
+        #do something
+    def Build(self):
+        #do something
+```
+
+Use `python {your_script}.py -h` to see the available options
+"""
     class Status(Enum):
         WAITING = 0
         RUNNING = 1
@@ -55,28 +52,11 @@ class BaseBuilder:
         def __str__(self):
             return self.name
     
-    def __init__(self):
+    def __init__(self, args):
         if self.__class__ == BaseBuilder:
             raise Exception('BaseBuilder is an abstract class and cannot be instantiated')
         
-        self.argumentParser = argparse.ArgumentParser(description='Builder tool')
-        
-        loggerOptions = self.argumentParser.add_mutually_exclusive_group()
-        loggerOptions.add_argument('--debug', action='store_true', help='Enable debug messages')
-        loggerOptions.add_argument('--deep-debug', action='store_true', help='Enable deep debug messages')
-        
-        buildersOptions = self.argumentParser.add_argument_group('Builder options')
-        buildersOptions.add_argument('--no-tests', action='store_true', help='Do not run tests')
-        buildersOptions.add_argument('--no-docs', action='store_true', help='Do not generate documentation')
-        buildersOptions.add_argument('--publish', action='store_true', help='Publish the package')
-        buildersOptions.add_argument('--no-clean', action='store_true', help='Do not clean temporary files')
-        buildersOptions.add_argument('--temp-dir', help='Temporary directory (used to generate the package)', type=str, default=mkdtemp())
-        buildersOptions.add_argument('--dist-dir', help='Distribution directory (where to save the built files)', type=str, default='dist')
-        buildersOptions.add_argument('-pv', '--package-version', help='set the version of the package you want to build', type=str, default='0.0.0')
-        
-        self.argumentParser.add_argument('--version', '-v', action='version', version='%(prog)s 1.0')
-        
-        self.args = self.argumentParser.parse_args()
+        self.args = args
         
         self.__steps = {
             "Setup":        self.Status.WAITING,
@@ -138,8 +118,6 @@ class BaseBuilder:
             sys.exit(1)
         
         os.makedirs(self.args.dist_dir, exist_ok=True)
-        
-        atexit.register(BaseBuilder.execute)
         
     @property
     def tempDir(self):
@@ -208,16 +186,14 @@ class BaseBuilder:
             else:
                 Logger.debug('Command executed successfully')
                 return True
-        
-        
+           
     def addFile(self, path, dest = None):
         """Copy a file to the temporary directory"""
         Logger.debug('Adding file: ' + path)
         if dest is None:
             dest = path
         shutil.copy(path, self.tempDir + '/' + dest)
-        return True
-        
+        return True   
         
     def addDirectory(self, path, dest = None):
         """Copy a directory to the temporary directory"""
@@ -254,7 +230,6 @@ class BaseBuilder:
             Logger.debug('Temporary directory cleaned')
             return True
         
-    
     def __canStepBeStarted(self, step):
         # a better version of the previous function
         for dependency, requireMode in self.__stepDependencies[step].items():
@@ -278,8 +253,7 @@ class BaseBuilder:
                 case self.Status.FINISHED:
                     continue
         return True
-    
-    
+        
     def __runStep(self, step : str):
         '''
         A step is considered failed if it raises an exception, or if it returns False
@@ -347,9 +321,29 @@ class BaseBuilder:
             Logger.info('Build finished successfully')
             Logger.info("exported files:\n\t"+ "\n\t".join(self.__listExport()))
 
-
     @staticmethod
-    def execute():
+    def __get_args():
+        argumentParser = argparse.ArgumentParser(description='Builder tool')
+        
+        loggerOptions = argumentParser.add_mutually_exclusive_group()
+        loggerOptions.add_argument('--debug', action='store_true', help='Enable debug messages')
+        loggerOptions.add_argument('--deep-debug', action='store_true', help='Enable deep debug messages')
+        
+        buildersOptions = argumentParser.add_argument_group('Builder options')
+        buildersOptions.add_argument('--no-tests', action='store_true', help='Do not run tests')
+        buildersOptions.add_argument('--no-docs', action='store_true', help='Do not generate documentation')
+        buildersOptions.add_argument('--publish', action='store_true', help='Publish the package')
+        buildersOptions.add_argument('--no-clean', action='store_true', help='Do not clean temporary files')
+        buildersOptions.add_argument('--temp-dir', help='Temporary directory (used to generate the package)', type=str, default=mkdtemp())
+        buildersOptions.add_argument('--dist-dir', help='Distribution directory (where to save the built files)', type=str, default='dist')
+        buildersOptions.add_argument('-pv', '--package-version', help='set the version of the package you want to build', type=str, default='0.0.0')
+        
+        argumentParser.add_argument('--version', '-v', action='version', version='%(prog)s 1.0')
+        
+        return argumentParser.parse_args()
+    
+    @staticmethod
+    def __execute(args):
         subClasses = BaseBuilder.__subclasses__()
         if len(subClasses) == 0:
             Logger.critical('No builders found')
@@ -357,9 +351,17 @@ class BaseBuilder:
         elif len(subClasses) > 1:
             Logger.critical('Multiple builders found')
             sys.exit(1)
-            
-        possibleSteps = ['Setup', 'Tests', 'BuildTests', 'Docs', 'Build', 'Publish']
-        steps = [step for step in subClasses[0].__dict__ if step in possibleSteps]
-        subClasses[0]().__run(steps)
-    
         
+        builderClass = subClasses[0]
+        
+        possibleSteps = ['Setup', 'Tests', 'BuildTests', 'Docs', 'Build', 'Publish']
+        steps = [step for step in builderClass.__dict__ if step in possibleSteps]
+        builderInstance = builderClass(args)
+        builderInstance.__run(steps)
+    
+    @staticmethod
+    def register_execute():
+        args = BaseBuilder.__get_args()
+        atexit.register(BaseBuilder.__execute, args)
+    
+BaseBuilder.register_execute()
