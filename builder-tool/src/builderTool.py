@@ -2,25 +2,15 @@ import argparse
 import os, sys, shutil
 from enum import Enum
 from tempfile import mkdtemp, mkstemp
+import atexit
 
 # some useful constants
         
 PYTHON = sys.executable
 NULL_TARGET = '/dev/null' if os.name == 'posix' else 'nul'
 
-try:
-    from gamuLogger import Logger, LEVELS, debugFunc
-    import gamuLogger
-    
-    if gamuLogger.__version__ < '2.0.1':
-        raise ImportError('Logger version is too old')
-    
-except (ImportError, AttributeError):
-    print("Logger not found, installing...", end=' ', flush=True)
-    os.system(f'{sys.executable} -m pip install https://github.com/GamuNetwork/logger/releases/download/2.0.1/gamu_logger-2.0.1-py3-none-any.whl > {NULL_TARGET} 2> {NULL_TARGET}')
-    print("done")
-    from gamuLogger import Logger, LEVELS, debugFunc
-    import gamuLogger
+from gamuLogger import Logger, LEVELS, debugFunc
+import gamuLogger    
     
 Logger.setModule('Builder')
 
@@ -148,6 +138,8 @@ class BaseBuilder:
             sys.exit(1)
         
         os.makedirs(self.args.dist_dir, exist_ok=True)
+        
+        atexit.register(BaseBuilder.execute)
         
     @property
     def tempDir(self):
