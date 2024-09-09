@@ -9,6 +9,3 @@ class Builder(BaseBuilder):
         
     def Build(self):
         self.runCommand(f'{PYTHON} -m build --outdir {self.distDir} .')
-        
-
-BaseBuilder.execute()

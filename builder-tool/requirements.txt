@@ -1,2 +1,1 @@
-build-tool @ https://github.com/GamuNetwork/devtools/releases/download/1.6.9/build_tool-1.6.9-py3-none-any.whl#sha256=53b979fec08fd3c9aac2a7b8ca9b274b378317370ab6c2d7af63f413d142e470
 gamu_logger @ https://github.com/GamuNetwork/logger/releases/download/2.0.2/gamu_logger-2.0.2-py3-none-any.whl#sha256=185782d478320acc807eae96a22fed155b1a4533a056cbd6de4487c9c0e9995a
