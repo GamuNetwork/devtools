@@ -1,7 +1,7 @@
 # available tools
 
 ### [builderTool](./builder-tool) - Python script for simplify automatic build, tests, publish and deploy of projects. 
-  > DEPRECATED, new updates will be in [github.com/T0ine34/builder-tool](https://github.com/T0ine34/builder-tool)
+  > DEPRECATED, new updates will be in [github.com/T0ine34/feanor](https://github.com/T0ine34/feanor)
 
 ### [createModule](./create-module) - Python script for create a new module (game) for GamuNetwork.
 
